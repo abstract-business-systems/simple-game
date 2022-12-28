@@ -11,6 +11,7 @@ const style = (bullet) => {
 		left: `${ x }%`,
 		top: `${ y }%`,
 		filter: `hue-rotate(${ color }deg)`,
+
 	};
 };
 
