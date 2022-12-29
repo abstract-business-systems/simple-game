@@ -6,6 +6,7 @@ import Flight from '../flight';
 import HealthBar from '../healthBar';
 import Score from '../score';
 import Target from '../target';
+import EnemyBullet from '../enemyBullet';
 
 const TwoDMode = (context) => {
 	const { state } = context;
@@ -17,6 +18,7 @@ const TwoDMode = (context) => {
 			{ Score() }
 			{ Container(state.bullets, Bullet) }
 			{ Flight() }
+			{ Container(state.enemyBullets, EnemyBullet) }
 			{ Container(state.targets, Target) }
 		</div>
 	);
