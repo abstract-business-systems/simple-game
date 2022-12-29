@@ -37,10 +37,12 @@ const resetObjects = (context) => ({
 
 const generateBullets = (context) => ({
 	bullets: GameService.generateBullets(context),
+	// enemyBullets: GameService.generateBullets(context),
 });
 
 const moveBullets = (context) => ({
 	bullets: PlayerManager.moveBullets(context),
+	enemyBullets: PlayerManager.moveEnemyBullets(context),
 });
 
 const processBullets = (context) =>
