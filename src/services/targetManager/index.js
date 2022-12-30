@@ -45,27 +45,31 @@ const targetManager = {
 			:	targets),
 
 	makeBullet: ({ state: { targets }, config, data }) =>
-		({ ...data,
+		({
+			...data,
 			id: rndString(config.rndLength),
 			x: rndValue(targets).x,
-			y: rndValue(targets).y,
-			isHit: false }),
+			y: config.targets.shooter.y,
+			isHit: false,
+		}),
 
-	getType: ({ config: { bulletsType }}) => {
-		const bulletTypeKeys = keys(bulletsType);
+	getType: ({ config: { enemyBulletsType }}) => {
+		const bulletTypeKeys = keys(enemyBulletsType);
 
 		const type = bulletTypeKeys.find((key) =>
-			HelperService .isProbable(bulletsType[key].prob));
+			HelperService .isProbable(enemyBulletsType[key].prob));
 
-		return bulletsType[type] || {};
+		return enemyBulletsType[type] || {};
 	},
 
 	generateEnemyBullets: (context) => {
 		const { state: { enemyBullets }} = context;
 
-		return enemyBullets.concat(targetManager
-			.makeBullet({ ...context,
-				data: targetManager.getType(context) }));
+		return [...enemyBullets,
+			targetManager.makeBullet({
+				...context,
+				data: targetManager.getType(context),
+			})];
 	},
 };
 
