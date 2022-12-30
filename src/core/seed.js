@@ -17,7 +17,6 @@ const seed = {
 	objects: [],
 	bullets: [],
 	enemyBullets: [],
-
 };
 
 export default seed;

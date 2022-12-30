@@ -36,7 +36,7 @@
 	display: flex;
 	justify-content: space-between;
 
-		.target, .enemyBullet{
+		.target, .enemy{
 		position: absolute;
 		transform: rotate(180deg);
 		}
@@ -114,7 +114,7 @@
 	box-shadow: black calc(1px + 0.1vw) calc(1px + 0.1vw) calc(11px + 0.5vw) calc(2px + 0.2vw);
 	border: 0.2vw solid rgb(28, 110, 164);
 }
-.bullet,.enemyBullet {
+.bullet {
 	position: absolute;
 	background-size: 100%;
 	background-repeat: no-repeat;
