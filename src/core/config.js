@@ -41,6 +41,7 @@ const config = {
 		{ key: 'H', action: 'help', desc: 'Help' },
 		{ key: 'P', action: 'playPause', desc: 'Play/Pause' },
 	],
+	shootingProbMultiplier: 0.2,
 	bulletsType: {
 		normal: {
 			type: 'normal',
@@ -48,7 +49,7 @@ const config = {
 			width: 1,
 			image: bulletImage,
 			color: 0,
-			prob: 0.2,
+			prob: 0.6,
 			damage: 1,
 		},
 		superBullet: {
@@ -57,7 +58,7 @@ const config = {
 			width: 1,
 			image: bulletImage,
 			color: 330,
-			prob: 0.02,
+			prob: 0.3,
 			damage: 2,
 		},
 	},
