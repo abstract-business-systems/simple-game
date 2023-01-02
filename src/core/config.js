@@ -48,7 +48,7 @@ const config = {
 			width: 1,
 			image: bulletImage,
 			color: 0,
-			prob: 0.6,
+			prob: 0.2,
 			damage: 1,
 		},
 		superBullet: {
@@ -57,7 +57,7 @@ const config = {
 			width: 1,
 			image: bulletImage,
 			color: 330,
-			prob: 0.3,
+			prob: 0.02,
 			damage: 2,
 		},
 	},
@@ -115,6 +115,7 @@ const config = {
 			variance: 0.2,
 			prop: {
 				spawn: 1,
+				shooting: 0.05,
 			},
 		},
 	},

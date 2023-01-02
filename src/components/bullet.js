@@ -16,14 +16,14 @@ const style = (bullet) => {
 };
 
 const Bullet = (bullet) => {
-	const { image, id, holder } = bullet;
+	const { image, id, team } = bullet;
 
 	return (
 		<img
 			key={ id }
 			src={ image }
-			role={ holder }
-			className={ `bullet ${ holder }` }
+			role={ team }
+			className={ `bullet ${ team }` }
 			style={ style(bullet) }
 		/>);
 };

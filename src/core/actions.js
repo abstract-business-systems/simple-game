@@ -39,6 +39,10 @@ const generateBullets = (context) => ({
 	bullets: bulletManager.generateBullets(context),
 });
 
+const generateEnemyBullets = (context) => ({
+	bullets: bulletManager.generateBullets(context),
+});
+
 const moveBullets = (context) => ({
 	bullets: PlayerManager.moveBullets(context),
 });
@@ -78,10 +82,6 @@ const setPlayPause = ({ data }) => ({
 });
 const processEnemyBullets = (context) =>
 	PlayerManager.processEnemyBullets(context);
-
-const generateEnemyBullets = (context) => ({
-	enemyBullets: targetManager.generateEnemyBullets(context),
-});
 
 const actions = {
 	updateMousePosition,

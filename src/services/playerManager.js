@@ -6,6 +6,11 @@ import * as helperService from '../services/helperService';
 
 const hundred = 100;
 
+const moveBullet = {
+	player: -1,
+	enemy: 1,
+};
+
 const PlayerManager = {
 	isAlive: ({ state }) => state.health > 0,
 
@@ -28,7 +33,8 @@ const PlayerManager = {
 	moveBullets: ({ state, config }) =>
 		state.bullets.map((bullet) => ({
 			...bullet,
-			y: bullet.y - config.moveBulletPercentage,
+			y: bullet.y
+			+ (moveBullet[bullet.team] * config.moveBulletPercentage),
 		})),
 
 	moveEnemyBullets: ({ state, config }) =>

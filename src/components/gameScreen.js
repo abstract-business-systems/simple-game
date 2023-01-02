@@ -21,7 +21,7 @@ const GameScreen = (context) =>
 			context.actions.updateMousePosition(event);
 			context.actions.updateFlightPosition();
 		} }
-		onClick={ (event) => context.actions.generateBullets(event) }
+		onClick={ () => context.actions.generateBullets('player') }
 	>
 		{GameMode[getMode(context)](context)}
 	</div>;
