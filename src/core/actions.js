@@ -1,4 +1,4 @@
-import GameService from '../services/gameService';
+import bulletManager from '../services/bulletManager';
 import PlayerManager from '../services/playerManager';
 import PositionService from '../services/positionService';
 import targetManager from '../services/targetManager';
@@ -36,13 +36,11 @@ const resetObjects = (context) => ({
 });
 
 const generateBullets = (context) => ({
-	bullets: GameService.generateBullets(context),
-	// enemyBullets: GameService.generateBullets(context),
+	bullets: bulletManager.generateBullets(context),
 });
 
 const moveBullets = (context) => ({
 	bullets: PlayerManager.moveBullets(context),
-	enemyBullets: PlayerManager.moveEnemyBullets(context),
 });
 
 const processBullets = (context) =>

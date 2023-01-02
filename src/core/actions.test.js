@@ -3,7 +3,7 @@ import playerManager from '../services/playerManager';
 import context from '../core/context';
 import PositionService from '../services/positionService';
 import targetManager from '../services/targetManager';
-import GameService from '../services/gameService';
+import bulletManager from '../services/bulletManager';
 
 describe('actions', () => {
 	const { restart,
@@ -97,13 +97,14 @@ describe('actions', () => {
 	});
 
 	test('generateBullets returns bullets[]', () => {
-		jest.spyOn(GameService, 'generateBullets').mockReturnValue(returnValue);
+		jest.spyOn(bulletManager, 'generateBullets')
+			.mockReturnValue(returnValue);
 
 		const expected = { bullets: returnValue };
 
 		const result = generateBullets(context);
 
-		expect(GameService.generateBullets)
+		expect(bulletManager.generateBullets)
 			.toHaveBeenCalledWith(context);
 
 		expect(result).toEqual(expected);
