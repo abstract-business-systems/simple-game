@@ -14,40 +14,39 @@ const positions = {
 	}),
 };
 
-const makeBullet = (context) => {
-	const { data, config: { rndLength }} = context;
-
-	return {
-		...data,
-		...{
-			id: rndString(rndLength),
-			isHit: false,
-		},
-		...positions[data.team](context),
-	};
-};
-
-const getType = ({ config: { bulletsType, defaultBulletType }}) => {
-	const bulletTypeKeys = keys(bulletsType);
-	const type = bulletTypeKeys.find((key) =>
-		HelperService.isProbable(bulletsType[key].prob));
-
-	return bulletsType[type] || bulletsType[defaultBulletType];
-};
-
 const checkShootingProbability = ({ config: { shootingProbMultiplier }}) =>
 	HelperService.isProbable(shootingProbMultiplier);
 
 const bulletManager = {
+	makeBullet: (context) => {
+		const { data, config: { rndLength }} = context;
+
+		return {
+			...data,
+			...{
+				id: rndString(rndLength),
+				isHit: false,
+			},
+			...positions[data.team](context),
+		};
+	},
+
+	getType: ({ config: { bulletsType, defaultBulletType }}) => {
+		const bulletTypeKeys = keys(bulletsType);
+		const type = bulletTypeKeys.find((key) =>
+			HelperService.isProbable(bulletsType[key].prob));
+
+		return bulletsType[type] || bulletsType[defaultBulletType];
+	},
 
 	generateBullets: (context) => {
 		const { state: { bullets }, data } = context;
 		const team = data || 'enemy';
-		const typeConfig = getType({ ...context, data: team });
+		const typeConfig = bulletManager.getType({ ...context, data: team });
 
 		return data === 'player' || checkShootingProbability(context)
 			? [...bullets,
-				makeBullet({
+				bulletManager.makeBullet({
 					...context,
 					data: { ...typeConfig, team },
 				})]
