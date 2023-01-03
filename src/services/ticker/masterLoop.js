@@ -9,11 +9,11 @@ const masterLoop = [
 	'resetObjects',
 	'moveBullets',
 	'processBullets',
+	'processEnemyBullets',
 	'clearHitBullets',
 	'updateScore',
 	'removeTargets',
 	'generateEnemyBullets',
-	'processEnemyBullets',
 ];
 
 const runMasterLoop = () =>
