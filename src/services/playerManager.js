@@ -14,12 +14,13 @@ const moveBullet = {
 const PlayerManager = {
 	isAlive: ({ state }) => state.health > 0,
 
-	decreaseHealth: ({ state, config }) =>
-		({ health: state.health - config.damage }),
+	decreaseHealth: ({ state, config }) => ({
+		health: state.health - config.damage,
+	}),
 
-	backGroundMovingAxis: ({ state, config }) =>
-		({ bgnScreenY:
-			(state.bgnScreenY + config.bgnScreenYIncre) % hundred }),
+	backGroundMovingAxis: ({ state, config }) => ({
+		bgnScreenY: (state.bgnScreenY + config.bgnScreenYIncre) % hundred,
+	}),
 
 	updateBackgroundObjects: ({ state, config }) =>
 		state.objects.map((obj) => ({
@@ -50,18 +51,21 @@ const PlayerManager = {
 		})),
 
 	getObjects: (context) => ({
-		x: PositionService
-			.getRandomValue(context.data.width),
-		y: -PositionService
-			.getRandomValue(context.data.height),
+		x: PositionService.getRandomValue(context.data.width),
+		y: -PositionService.getRandomValue(context.data.height),
 		id: rndString(context.config.rndLength),
 		...context.data,
 	}),
 
-	createObjects: (context) => context.data.filter((type) =>
-		helperService.isProbable(context.config.objects[type].prob))
-		.map((item) => PlayerManager
-			.getObjects({ ...context, data: context.config.objects[item] })),
+	createObjects: (context) =>
+		context.data
+			.filter((type) =>
+				helperService.isProbable(context.config.objects[type].prob))
+			.map((item) =>
+				PlayerManager.getObjects({
+					...context,
+					data: context.config.objects[item],
+				})),
 
 	generateObjects: (context) => {
 		const objectKeys = keys(context.config.objects);
@@ -76,81 +80,88 @@ const PlayerManager = {
 		bullets.filter((data) => data.isHit !== true),
 
 	detectOverLapping: (bullet, target) =>
-		find(bullet, (value) =>
-			PositionService.isPointInRect(value, target)),
+		find(bullet, (value) => PositionService.isPointInRect(value, target)),
 
 	isBulletHit: (bullet, target) => {
 		const bulletPoints = PositionService.getAllPoints(bullet);
 		const targetPoints = PositionService.getAllPoints(target);
 
-		const isOverlapped = PlayerManager
-			.detectOverLapping(bulletPoints, targetPoints);
+		const isOverlapped = PlayerManager.detectOverLapping(bulletPoints,
+			targetPoints);
 
 		return isOverlapped !== undefined;
 	},
 
-	filterBullet: (bullets, target) => bullets.filter((bullet) =>
-		PlayerManager.isBulletHit(bullet, target)),
+	filterBullet: (bullets, target) =>
+		bullets.filter((bullet) => PlayerManager.isBulletHit(bullet, target)),
 
-	collectHits: ({ data }) => data.targets.map((target) => PlayerManager
-		.collectEachTargetHits(target, data.bullets)),
+	collectHits: ({ data: { team, flights, bullets }}) => {
+		const targets = flights[team];
+		const filteredBullets = bullets.filter((bullet) =>
+			bullet.team === team);
+
+		return targets.map((target) =>
+			PlayerManager.collectEachTargetHits(target, filteredBullets));
+	},
 
 	collectEachTargetHits: (target, bullets) => ({
 		target: target,
 		bullets: PlayerManager.filterBullet(bullets, target),
 	}),
 
-	updateHealth: (hits) => hits.map(({ target, bullets }) =>
-		({		...target,
-			health: PlayerManager.calDamage(target, bullets) })),
+	updateHealth: (hits) =>
+		hits.map(({ target, bullets }) => ({
+			...target,
+			health: PlayerManager.calDamage(target, bullets),
+		})),
 
 	updateBulletIsHit: (hitBullets, bullets) => {
 		const bulletsId = hitBullets.map((bullet) => bullet.id);
 
-		return bullets.map((bullet) => (
-			{ ...bullet, isHit: bulletsId.includes(bullet.id) }));
+		return bullets.map((bullet) => ({
+			...bullet,
+			isHit: bulletsId.includes(bullet.id),
+		}));
 	},
 
+	// eslint-disable-next-line max-lines-per-function
 	processHits: (context) => {
-		const { state: { bullets, targets }} = context;
-		const data = { bullets, targets };
-		const hits = PlayerManager.collectHits({ ...context, data });
+		const {
+			state: { bullets, targets, flight, health },
+		} = context;
+		const flights = {
+			enemy: [{ ...flight, health }],
+			player: targets,
+		};
+		const data = { bullets, flights };
+		const hits = (team) => PlayerManager.collectHits({
+			...context,
+			data: { ...data, team },
+		});
+		const playerHits = hits('player');
+		const enemyHits = hits('enemy');
+		const [{ health: flightHealth }] = PlayerManager
+			.updateHealth(enemyHits);
 
-		return	{
-			targets: PlayerManager.updateHealth(hits),
-			bullets: PlayerManager
-				.updateBulletIsHit(helper.flattenBullets(hits), bullets),
+		return {
+			targets: PlayerManager.updateHealth(playerHits),
+			health: flightHealth,
+			bullets: PlayerManager.updateBulletIsHit(helper.flattenBullets([
+				...enemyHits,
+				...playerHits,
+			]),
+			bullets),
 		};
 	},
 
-	calDamage: (target, bullets) => Math.max(target.health - bullets
-		.reduce((a, c) => a + c.damage, 0), 0),
+	calDamage: (target, bullets) =>
+		Math.max(target.health - bullets.reduce((a, c) => a + c.damage, 0), 0),
 
 	updateScore: ({ state: { targets, score }}) =>
-		targets.reduce((a, target) =>
-			(target.health === 0 ? a + 1 : a), score),
+		targets.reduce((a, target) => (target.health === 0 ? a + 1 : a), score),
 
 	removeTargets: ({ state: { targets }}) =>
 		targets.filter((target) => target.health !== 0),
-
-	processEnemyBullets: (context) => {
-		const { flight, health, bullets } = context.state;
-		const enemyBullets = bullets.filter((bullet) =>
-			bullet.team === 'enemy');
-		const data = { targets: [flight], bullets: enemyBullets };
-		const hits = PlayerManager.collectHits({ ...context, data });
-		const { target, bullets: hitBullets } = hits[0];
-		const addedHealth = [{ target: { ...target, health },
-			bullets: hitBullets }];
-		const targetHealth = PlayerManager.updateHealth(addedHealth);
-
-		return	{
-			health: targetHealth[0].health,
-			bullets: PlayerManager
-				.updateBulletIsHit(helperService.flattenBullets(hits),
-					bullets),
-		};
-	},
 };
 
 export default PlayerManager;
