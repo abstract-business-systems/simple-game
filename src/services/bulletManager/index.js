@@ -2,10 +2,10 @@ import { keys } from '@laufire/utils/collection';
 import { rndString, rndValue } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 
-const checkShootingProbability = ({ config: { shootingProbMultiplier }}) =>
-	HelperService.isProbable(shootingProbMultiplier);
-
 const bulletManager = {
+
+	checkShootingProbability: ({ config: { shootingProbMultiplier }}) =>
+		HelperService.isProbable(shootingProbMultiplier),
 
 	positions: {
 		enemy: ({ state: { targets }, config }) => ({
@@ -44,8 +44,9 @@ const bulletManager = {
 		const { state: { bullets }, data } = context;
 		const team = data || 'enemy';
 		const typeConfig = bulletManager.getType(context);
+		const canShoot = bulletManager.checkShootingProbability(context);
 
-		return team === 'player' || checkShootingProbability(context)
+		return team === 'player' || canShoot
 			? [...bullets,
 				bulletManager.makeBullet({
 					...context,
