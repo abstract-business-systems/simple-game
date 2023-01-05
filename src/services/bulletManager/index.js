@@ -2,22 +2,23 @@ import { keys } from '@laufire/utils/collection';
 import { rndString, rndValue } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 
-const positions = {
-	enemy: ({ state: { targets }, config }) => ({
-		x: rndValue(targets).x,
-		y: config.targets.shooter.y,
-	}),
-
-	player: ({ state: { flight: { x }}, config }) => ({
-		x: x,
-		y: config.bulletYAxis,
-	}),
-};
-
 const checkShootingProbability = ({ config: { shootingProbMultiplier }}) =>
 	HelperService.isProbable(shootingProbMultiplier);
 
 const bulletManager = {
+
+	positions: {
+		enemy: ({ state: { targets }, config }) => ({
+			x: rndValue(targets).x,
+			y: config.targets.shooter.y,
+		}),
+
+		player: ({ state: { flight: { x }}, config }) => ({
+			x: x,
+			y: config.bulletYAxis,
+		}),
+	},
+
 	makeBullet: (context) => {
 		const { data, config: { rndLength }} = context;
 
@@ -27,7 +28,7 @@ const bulletManager = {
 				id: rndString(rndLength),
 				isHit: false,
 			},
-			...positions[data.team](context),
+			...bulletManager.positions[data.team](context),
 		};
 	},
 
@@ -42,9 +43,9 @@ const bulletManager = {
 	generateBullets: (context) => {
 		const { state: { bullets }, data } = context;
 		const team = data || 'enemy';
-		const typeConfig = bulletManager.getType({ ...context, data: team });
+		const typeConfig = bulletManager.getType(context);
 
-		return data === 'player' || checkShootingProbability(context)
+		return team === 'player' || checkShootingProbability(context)
 			? [...bullets,
 				bulletManager.makeBullet({
 					...context,
