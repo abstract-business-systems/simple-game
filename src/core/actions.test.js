@@ -12,6 +12,7 @@ describe('actions', () => {
 		updateObjects,
 		resetObjects,
 		generateBullets,
+		generateEnemyBullets,
 		moveBullets,
 		updateFlightPosition,
 		processBullets,
@@ -22,8 +23,7 @@ describe('actions', () => {
 		gameStart,
 		setAudio,
 		setHelp,
-		setPlayPause,
-		processEnemyBullets } = actions;
+		setPlayPause } = actions;
 
 	const returnValue = Symbol('return');
 
@@ -103,6 +103,20 @@ describe('actions', () => {
 		const expected = { bullets: returnValue };
 
 		const result = generateBullets(context);
+
+		expect(bulletManager.generateBullets)
+			.toHaveBeenCalledWith(context);
+
+		expect(result).toEqual(expected);
+	});
+
+	test('generateEnemyBullets returns bullets[]', () => {
+		jest.spyOn(bulletManager, 'generateBullets')
+			.mockReturnValue(returnValue);
+
+		const expected = { bullets: returnValue };
+
+		const result = generateEnemyBullets(context);
 
 		expect(bulletManager.generateBullets)
 			.toHaveBeenCalledWith(context);
@@ -253,17 +267,5 @@ describe('actions', () => {
 		const result = setPlayPause({ data });
 
 		expect(result).toMatchObject({ playPause: data });
-	});
-
-	test('test process Enemy Bullets', () => {
-		jest.spyOn(playerManager, 'processEnemyBullets')
-			.mockReturnValue(returnValue);
-
-		const expected = returnValue;
-
-		const result = processEnemyBullets(context);
-
-		expect(playerManager.processEnemyBullets).toHaveBeenCalledWith(context);
-		expect(result).toEqual(expected);
 	});
 });
