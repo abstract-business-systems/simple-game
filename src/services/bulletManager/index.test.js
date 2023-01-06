@@ -3,6 +3,7 @@ import { rndBetween } from '@laufire/utils/lib';
 import bulletManager from '.';
 import * as HelperService from '../helperService';
 import { collection, random } from '@laufire/utils';
+import { rndValue } from '@laufire/utils/random';
 
 describe.only('testing bulletManager', () => {
 	const two = 2;
@@ -10,7 +11,8 @@ describe.only('testing bulletManager', () => {
 	const ten = 10;
 
 	const { generateBullets,
-		getType, makeBullet } = bulletManager;
+		getType, makeBullet, positions,
+		checkShootingProbability } = bulletManager;
 
 	describe('makeBullets', () => {
 		const id = Symbol('id');
@@ -22,7 +24,7 @@ describe.only('testing bulletManager', () => {
 			rndLength: Symbol('rndLength'),
 		};
 
-		test('Get enemy positions', () => {
+		test('get enemy positions', () => {
 			const team = 'enemy';
 			const data = { ...getData, team };
 			const context = {
@@ -51,7 +53,7 @@ describe.only('testing bulletManager', () => {
 				.toHaveBeenCalledWith(context);
 		});
 
-		test('Get player positions', () => {
+		test('get player positions', () => {
 			const team = 'player';
 			const data = { ...getData, team };
 			const context = {
@@ -141,7 +143,7 @@ describe.only('testing bulletManager', () => {
 		};
 		const state = { bullets: [bullets] };
 
-		test('Team player', () => {
+		test('team player', () => {
 			const team = 'player';
 			const context = { state: state, data: team };
 			const data = {
@@ -158,11 +160,13 @@ describe.only('testing bulletManager', () => {
 			const expected = [bullets, bullet];
 
 			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+			expect(bulletManager.checkShootingProbability)
+				.toHaveBeenCalledWith(context);
 			expect(result).toEqual(expected);
 			expect(bulletManager.makeBullet).toHaveBeenCalledWith(data);
 		});
 
-		test('Team enemy', () => {
+		test('team enemy', () => {
 			const team = 'enemy';
 			const context = { state: state, data: '' };
 			const data = { ...context, data: { ... typeConfig, team }};
@@ -176,6 +180,8 @@ describe.only('testing bulletManager', () => {
 			const expected = [bullets, bullet];
 
 			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+			expect(bulletManager.checkShootingProbability)
+				.toHaveBeenCalledWith(context);
 			expect(bulletManager.makeBullet).toHaveBeenCalledWith(data);
 			expect(result).toEqual(expected);
 		});
@@ -192,8 +198,59 @@ describe.only('testing bulletManager', () => {
 			const expected = [bullets];
 
 			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+			expect(bulletManager.checkShootingProbability)
+				.toHaveBeenCalledWith(context);
 			expect(bulletManager.makeBullet).not.toHaveBeenCalled();
 			expect(result).toEqual(expected);
 		});
+	});
+
+	test('check shooting probability', () => {
+		const config = {
+			shootingProbMultiplier: Symbol('shootingProbMultiplier'),
+		};
+		const isProbable = rndValue([true, false]);
+
+		jest.spyOn(HelperService, 'isProbable').mockReturnValue(isProbable);
+
+		const result = checkShootingProbability({ config });
+		const expected = isProbable;
+
+		expect(result).toEqual(expected);
+		expect(HelperService.isProbable)
+			.toHaveBeenCalledWith(config.shootingProbMultiplier);
+	});
+
+	test('enemy positions', () => {
+		const targets = range(0, five).map(Symbol);
+		const state = { targets: [targets] };
+		const config = { targets: { shooter: { y: Symbol('y') }}};
+		const randomValue = {
+			x: Symbol('x'),
+		};
+
+		jest.spyOn(random, 'rndValue').mockReturnValue(randomValue);
+
+		const result = positions.enemy({ state, config });
+		const expected = {
+			x: randomValue.x,
+			y: config.targets.shooter.y,
+		};
+
+		expect(result).toEqual(expected);
+		expect(random.rndValue).toHaveBeenCalledWith(state.targets);
+	});
+
+	test('player positions', () => {
+		const state = { flight: { x: Symbol('x') }};
+		const config = { bulletYAxis: Symbol('y') };
+
+		const result = positions.player({ state, config });
+		const expected = {
+			x: state.flight.x,
+			y: config.bulletYAxis,
+		};
+
+		expect(result).toEqual(expected);
 	});
 });
