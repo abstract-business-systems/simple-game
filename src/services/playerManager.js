@@ -35,13 +35,7 @@ const PlayerManager = {
 		state.bullets.map((bullet) => ({
 			...bullet,
 			y: bullet.y
-			+ (moveBullet[bullet.team] * config.moveBulletPercentage),
-		})),
-
-	moveEnemyBullets: ({ state, config }) =>
-		state.enemyBullets.map((bullet) => ({
-			...bullet,
-			y: bullet.y + config.moveBulletPercentage,
+				+ (moveBullet[bullet.team] * config.moveBulletPercentage),
 		})),
 
 	detectBulletHit: ({ state: { targets, bullets }}) =>
@@ -95,10 +89,15 @@ const PlayerManager = {
 	filterBullet: (bullets, target) =>
 		bullets.filter((bullet) => PlayerManager.isBulletHit(bullet, target)),
 
+	filterTeamBullets: ({ bullets, team }) =>
+		bullets.filter((bullet) => bullet.team === team),
+
 	collectHits: ({ data: { team, flights, bullets }}) => {
 		const targets = flights[team];
-		const filteredBullets = bullets.filter((bullet) =>
-			bullet.team === team);
+		const filteredBullets = PlayerManager.filterTeamBullets({
+			bullets,
+			team,
+		});
 
 		return targets.map((target) =>
 			PlayerManager.collectEachTargetHits(target, filteredBullets));
@@ -134,12 +133,11 @@ const PlayerManager = {
 			player: targets,
 		};
 		const data = { bullets, flights };
-		const hits = (team) => PlayerManager.collectHits({
-			...context,
-			data: { ...data, team },
-		});
-		const playerHits = hits('player');
-		const enemyHits = hits('enemy');
+		const [playerHits, enemyHits] = ['player', 'enemy'].map((team) =>
+			PlayerManager.collectHits({
+				...context,
+				data: { ...data, team },
+			}));
 		const [{ health: flightHealth }] = PlayerManager
 			.updateHealth(enemyHits);
 
