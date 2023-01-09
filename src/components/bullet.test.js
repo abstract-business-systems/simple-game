@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import Bullet from './bullet';
 import PositionService from '../services/positionService';
 import bulletImg from '../images/bullet.png';
-import { rndBetween } from '@laufire/utils/random';
+import { rndBetween, rndValue } from '@laufire/utils/random';
 
 describe('test bullets', () => {
 	const returnValue = {
@@ -20,12 +20,13 @@ describe('test bullets', () => {
 			height: 2,
 			width: 1,
 			image: bulletImg,
+			team: rndValue(['player', 'enemy']),
 			hue: 0 };
 
-		const component = render(Bullet(bullet)).getByRole('bullet');
+		const component = render(Bullet(bullet)).getByRole(bullet.team);
 
 		expect(component).toBeInTheDocument();
-		expect(component).toHaveClass('bullet');
+		expect(component).toHaveClass(bullet.team);
 		expect(component).toHaveStyle({ height: `${ bullet.height }vw`,
 			width: `${ bullet.width }vw`,
 			left: `${ returnValue.x }%`,
