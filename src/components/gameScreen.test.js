@@ -43,7 +43,10 @@ describe('testing GameScreen', () => {
 		const component = render(GameScreen(context)).getByRole('gameScreen');
 
 		const mouseEvent = { _reactName: 'onMouseMove', type: 'mousemove' };
-		const clickEvent = { _reactName: 'onClick', type: 'click' };
+		const clickEvent = {
+			_reactName: 'onClick',
+			type: 'click',
+		};
 
 		fireEvent.mouseMove(component, mouseEvent);
 		fireEvent.click(component, clickEvent);
@@ -51,8 +54,7 @@ describe('testing GameScreen', () => {
 		expect(actions.updateMousePosition).toHaveBeenCalledWith(expect
 			.objectContaining(mouseEvent));
 		expect(actions.updateFlightPosition).toHaveBeenCalledWith();
-		expect(actions.generateBullets).toHaveBeenCalledWith(expect
-			.objectContaining(clickEvent));
+		expect(actions.generateBullets).toHaveBeenCalledWith('player');
 	});
 
 	test('gameMode', () => {
