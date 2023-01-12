@@ -28,7 +28,14 @@ const updateFlightPosition = (context) => ({
 });
 
 const updateObjects = (context) => ({
-	objects: PlayerManager.updateBackgroundObjects(context),
+	objects: PlayerManager.updateBackgroundObjects({
+		...context, data: 'objects',
+	}),
+});
+const updatePowers = (context) => ({
+	powers: PlayerManager.updateBackgroundObjects({
+		...context, data: 'powers',
+	}),
 });
 
 const resetObjects = (context) => ({
@@ -54,9 +61,15 @@ const clearHitBullets = (context) => ({
 	bullets: PlayerManager.removeHitBullets(context),
 });
 const generateObjects = (context) => ({
-	objects: PlayerManager.generateObjects(context),
+	objects: PlayerManager.generateObjects({
+		...context, data: 'objects',
+	}),
 });
-
+const generatePowers = (context) => ({
+	powers: PlayerManager.generateObjects({
+		...context, data: 'powers',
+	}),
+});
 const updateScore = (context) => ({
 	score: PlayerManager.updateScore(context),
 });
@@ -102,6 +115,8 @@ const actions = {
 	setHelp,
 	setPlayPause,
 	generateEnemyBullets,
+	generatePowers,
+	updatePowers,
 };
 
 export default actions;

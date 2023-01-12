@@ -22,8 +22,8 @@ const PlayerManager = {
 		bgnScreenY: (state.bgnScreenY + config.bgnScreenYIncre) % hundred,
 	}),
 
-	updateBackgroundObjects: ({ state, config }) =>
-		state.objects.map((obj) => ({
+	updateBackgroundObjects: ({ state, config, data }) =>
+		state[data].map((obj) => ({
 			...obj,
 			y: obj.y + config.bgnScreenYIncre,
 		})),
@@ -51,22 +51,27 @@ const PlayerManager = {
 		...context.data,
 	}),
 
-	createObjects: (context) =>
-		context.data
+	createObjects: (context) => {
+		const [objectKeys, objectName] = context.data;
+
+		return objectKeys
 			.filter((type) =>
-				helperService.isProbable(context.config.objects[type].prob))
-			.map((item) =>
-				PlayerManager.getObjects({
-					...context,
-					data: context.config.objects[item],
-				})),
+				helperService.isProbable(context.config[objectName][type].prob))
+			.map((item) => PlayerManager.getObjects({
+				...context,
+				data: context.config[objectName][item],
+			}));
+	},
 
 	generateObjects: (context) => {
-		const objectKeys = keys(context.config.objects);
+		const { data: objectName } = context;
+		const objectKeys = keys(context.config[objectName]);
 
 		return [
-			...context.state.objects,
-			...PlayerManager.createObjects({ ...context, data: objectKeys }),
+			...context.state[objectName],
+			...PlayerManager.createObjects({
+				...context, data: [...[objectKeys], objectName],
+			}),
 		];
 	},
 
