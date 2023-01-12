@@ -1,4 +1,6 @@
-import fighterJet from '../images/fighterJet.png';
+import shooter from '../images/fighterJet.png';
+import firingShooter from '../images/flightFiring.png';
+import doubleBullet from '../images/double.png';
 import bulletImage from '../images/bullet.png';
 import cloudImage from '../images/cloud.png';
 import shipImage from '../images/ship.png';
@@ -104,17 +106,39 @@ const config = {
 			image: shipImage,
 		},
 	},
-
+	powers: {
+		doubleBullet: {
+			width: 5,
+			height: 10,
+			type: 'doubleBullet',
+			prob: 0.2,
+			image: doubleBullet,
+		},
+	},
 	targets: {
 		shooter: {
 			health: 1,
 			damage: 1,
 			type: 'shooter',
-			image: fighterJet,
+			image: shooter,
 			height: 6,
 			width: 6,
 			y: 10,
 			variance: 0.2,
+			prop: {
+				spawn: 1,
+				shooting: 0.05,
+			},
+		},
+		firingShooter: {
+			type: 'firingShooter',
+			image: firingShooter,
+			height: 5,
+			width: 10,
+			variance: 0.2,
+			damage: 1,
+			health: 3,
+			y: 10,
 			prop: {
 				spawn: 1,
 				shooting: 0.05,
