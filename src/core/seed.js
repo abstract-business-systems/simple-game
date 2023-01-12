@@ -15,6 +15,7 @@ const seed = {
 	flight: config.flight,
 	targets: [],
 	objects: [],
+	powers: [],
 	bullets: [],
 	enemyBullets: [],
 };

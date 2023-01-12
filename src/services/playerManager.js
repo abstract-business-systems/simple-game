@@ -52,25 +52,25 @@ const PlayerManager = {
 	}),
 
 	createObjects: (context) => {
-		const [objectKeys, objectName] = context.data;
+		const [objectKeys, gameObject] = context.data;
 
 		return objectKeys
 			.filter((type) =>
-				helperService.isProbable(context.config[objectName][type].prob))
+				helperService.isProbable(context.config[gameObject][type].prob))
 			.map((item) => PlayerManager.getObjects({
 				...context,
-				data: context.config[objectName][item],
+				data: context.config[gameObject][item],
 			}));
 	},
 
 	generateObjects: (context) => {
-		const { data: objectName } = context;
-		const objectKeys = keys(context.config[objectName]);
+		const { data: gameObject } = context;
+		const objectKeys = keys(context.config[gameObject]);
 
 		return [
-			...context.state[objectName],
+			...context.state[gameObject],
 			...PlayerManager.createObjects({
-				...context, data: [...[objectKeys], objectName],
+				...context, data: [...[objectKeys], gameObject],
 			}),
 		];
 	},

@@ -111,7 +111,7 @@ const config = {
 			width: 5,
 			height: 10,
 			type: 'doubleBullet',
-			prob: 0.2,
+			prob: 0.01,
 			image: doubleBullet,
 		},
 	},
