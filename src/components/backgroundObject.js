@@ -1,9 +1,9 @@
+/* eslint-disable react/display-name*/
 import React from 'react';
 import PositionService from '../services/positionService';
 
-const backgroundObject = (data) => {
+const backgroundObject = (objectType) => (data) => {
 	const { id, height, width, type, image } = data;
-
 	const { x, y } = PositionService.project(data);
 
 	const style = {
@@ -17,7 +17,7 @@ const backgroundObject = (data) => {
 		<img
 			key={ id }
 			src={ image }
-			role="backgroundObject"
+			role={ objectType }
 			style={ style }
 			className={ type }
 		/>) ;
