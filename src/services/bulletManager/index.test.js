@@ -11,8 +11,7 @@ describe.only('testing bulletManager', () => {
 	const ten = 10;
 
 	const { generateBullets,
-		getType, makeBullet, positions,
-		checkShootingProbability } = bulletManager;
+		getType, makeBullet, positions } = bulletManager;
 
 	describe('makeBullets', () => {
 		const id = Symbol('id');
@@ -24,8 +23,8 @@ describe.only('testing bulletManager', () => {
 			rndLength: Symbol('rndLength'),
 		};
 
-		test('get enemy positions', () => {
-			const team = 'enemy';
+		test('get positions', () => {
+			const team = random.rndValue(['enemy', 'player']);
 			const data = { ...getData, team };
 			const context = {
 				config,
@@ -33,36 +32,6 @@ describe.only('testing bulletManager', () => {
 			};
 
 			jest.spyOn(random, 'rndString').mockReturnValue(id);
-
-			jest.spyOn(bulletManager.positions, team)
-				.mockReturnValue(getPositions);
-
-			const result = makeBullet(context);
-
-			const expected = {
-				...data,
-				id: id,
-				isHit: false,
-				...getPositions,
-			};
-
-			expect(result).toMatchObject(expected);
-			expect(random.rndString)
-				.toHaveBeenCalledWith(context.config.rndLength);
-			expect(bulletManager.positions[team])
-				.toHaveBeenCalledWith(context);
-		});
-
-		test('get player positions', () => {
-			const team = 'player';
-			const data = { ...getData, team };
-			const context = {
-				config,
-				data,
-			};
-
-			jest.spyOn(random, 'rndString').mockReturnValue(id);
-
 			jest.spyOn(bulletManager.positions, team)
 				.mockReturnValue(getPositions);
 
@@ -135,95 +104,64 @@ describe.only('testing bulletManager', () => {
 			});
 	});
 
-	describe('generateBullets renders bullets[{}]', () => {
+	describe.only('generateBullets renders bullets[{}]', () => {
 		const bullet = Symbol('bullet');
 		const bullets = range(0, rndBetween(five, ten)).map(Symbol);
 		const typeConfig = {
 			[random.rndString()]: Symbol(random.rndString()),
 		};
-		const state = { bullets: [bullets] };
+		const state = { bullets };
+		const config = {
+			shootingProbMultiplier: Symbol('shootingProbMultiplier'),
+		};
 
-		test('team player', () => {
-			const team = 'player';
-			const context = { state: state, data: team };
-			const data = {
+		test('team player or enemy with shooting probability', () => {
+			const data = rndValue(['player', '']);
+			const context = { state, data, config };
+			const team = data || 'enemy';
+
+			const bulletProps = {
 				...context,
-				data: { ... typeConfig, team },
+				data: {
+					... typeConfig,
+					team,
+				},
 			};
 
 			jest.spyOn(bulletManager, 'makeBullet').mockReturnValue(bullet);
 			jest.spyOn(bulletManager, 'getType').mockReturnValue(typeConfig);
-			jest.spyOn(bulletManager, 'checkShootingProbability')
-				.mockReturnValue(false);
-
-			const result = generateBullets(context);
-			const expected = [bullets, bullet];
-
-			expect(bulletManager.getType).toHaveBeenCalledWith(context);
-			expect(bulletManager.checkShootingProbability)
-				.toHaveBeenCalledWith(context);
-			expect(result).toEqual(expected);
-			expect(bulletManager.makeBullet).toHaveBeenCalledWith(data);
-		});
-
-		test('team enemy', () => {
-			const team = 'enemy';
-			const context = { state: state, data: '' };
-			const data = { ...context, data: { ... typeConfig, team }};
-
-			jest.spyOn(bulletManager, 'makeBullet').mockReturnValue(bullet);
-			jest.spyOn(bulletManager, 'getType').mockReturnValue(typeConfig);
-			jest.spyOn(bulletManager, 'checkShootingProbability')
+			jest.spyOn(HelperService, 'isProbable')
 				.mockReturnValue(true);
 
 			const result = generateBullets(context);
-			const expected = [bullets, bullet];
+			const expected = [...bullets, bullet];
 
 			expect(bulletManager.getType).toHaveBeenCalledWith(context);
-			expect(bulletManager.checkShootingProbability)
-				.toHaveBeenCalledWith(context);
-			expect(bulletManager.makeBullet).toHaveBeenCalledWith(data);
 			expect(result).toEqual(expected);
+			expect(bulletManager.makeBullet).toHaveBeenCalledWith(bulletProps);
+			expect(HelperService.isProbable)
+				.toHaveBeenCalledWith(config.shootingProbMultiplier);
 		});
 
 		test('No shooting probability', () => {
-			const context = { state: state, data: '' };
+			const data = '';
+			const context = { state, data, config };
 
-			jest.spyOn(bulletManager, 'makeBullet').mockReturnValue(bullet);
-			jest.spyOn(bulletManager, 'getType').mockReturnValue(typeConfig);
-			jest.spyOn(bulletManager, 'checkShootingProbability')
+			jest.spyOn(HelperService, 'isProbable')
 				.mockReturnValue(false);
 
 			const result = generateBullets(context);
-			const expected = [bullets];
+			const expected = bullets;
 
-			expect(bulletManager.getType).toHaveBeenCalledWith(context);
-			expect(bulletManager.checkShootingProbability)
-				.toHaveBeenCalledWith(context);
-			expect(bulletManager.makeBullet).not.toHaveBeenCalled();
 			expect(result).toEqual(expected);
+			expect(HelperService.isProbable)
+				.toHaveBeenCalledWith(config.shootingProbMultiplier);
 		});
-	});
-
-	test('check shooting probability', () => {
-		const config = {
-			shootingProbMultiplier: Symbol('shootingProbMultiplier'),
-		};
-		const isProbable = rndValue([true, false]);
-
-		jest.spyOn(HelperService, 'isProbable').mockReturnValue(isProbable);
-
-		const result = checkShootingProbability({ config });
-		const expected = isProbable;
-
-		expect(result).toEqual(expected);
-		expect(HelperService.isProbable)
-			.toHaveBeenCalledWith(config.shootingProbMultiplier);
 	});
 
 	test('enemy positions', () => {
 		const targets = range(0, five).map(Symbol);
-		const state = { targets: [targets] };
+		const state = { targets };
 		const config = { targets: { shooter: { y: Symbol('y') }}};
 		const randomValue = {
 			x: Symbol('x'),

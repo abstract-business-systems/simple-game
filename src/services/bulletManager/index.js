@@ -4,9 +4,6 @@ import * as HelperService from '../helperService';
 
 const bulletManager = {
 
-	checkShootingProbability: ({ config: { shootingProbMultiplier }}) =>
-		HelperService.isProbable(shootingProbMultiplier),
-
 	positions: {
 		enemy: ({ state: { targets }, config }) => ({
 			x: rndValue(targets).x,
@@ -24,10 +21,8 @@ const bulletManager = {
 
 		return {
 			...data,
-			...{
-				id: rndString(rndLength),
-				isHit: false,
-			},
+			id: rndString(rndLength),
+			isHit: false,
 			...bulletManager.positions[data.team](context),
 		};
 	},
@@ -41,18 +36,20 @@ const bulletManager = {
 	},
 
 	generateBullets: (context) => {
-		const { state: { bullets }, data } = context;
-		const team = data || 'enemy';
-		const typeConfig = bulletManager.getType(context);
-		const canShoot = bulletManager.checkShootingProbability(context);
+		const { state: { bullets }, data, config } = context;
+		const hasShootingProbability = HelperService
+			.isProbable(config.shootingProbMultiplier);
 
-		return team === 'player' || canShoot
+		return data || hasShootingProbability
 			? [...bullets,
 				bulletManager.makeBullet({
 					...context,
-					data: { ...typeConfig, team },
+					data: {
+						...bulletManager.getType(context),
+						team: data || 'enemy',
+					},
 				})]
-			: [...bullets];
+			: bullets;
 	},
 };
 
