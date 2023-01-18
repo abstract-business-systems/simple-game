@@ -54,8 +54,10 @@ const moveBullets = (context) => ({
 	bullets: PlayerManager.moveBullets(context),
 });
 
-const processBullets = (context) =>
-	PlayerManager.processHits(context);
+const processBullets = PlayerManager.processHits;
+
+const processPowers = (context) =>
+	PlayerManager.processPower(context);
 
 const clearHitBullets = (context) => ({
 	bullets: PlayerManager.removeHitBullets(context),
@@ -117,6 +119,7 @@ const actions = {
 	generateEnemyBullets,
 	generatePowers,
 	updatePowers,
+	processPowers,
 };
 
 export default actions;

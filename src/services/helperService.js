@@ -17,6 +17,8 @@ const isProbable = (probability) =>
 
 const flattenBullets = (hits) => hits.reduce((acc, { bullets }) =>
 	[...acc, ...bullets], []);
+const flattenPowers = (hits) => hits.reduce((acc, { powers }) =>
+	[...acc, ...powers], []);
 
 const degreeToRad = (deg) => THREE.Math.degToRad(deg);
 
@@ -28,6 +30,7 @@ export {
 	getVariance,
 	isProbable,
 	flattenBullets,
+	flattenPowers,
 	degreeToRad,
 	changeColor,
 };

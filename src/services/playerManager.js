@@ -157,6 +157,39 @@ const PlayerManager = {
 		};
 	},
 
+	collectEachHits: (target, bullets) => ({
+		target: target,
+		powers: PlayerManager.filterBullet(bullets, target),
+	}),
+
+	collectPowerHits: (context) => {
+		const [targets, powers] = context.data;
+
+		return targets.map((target) =>
+			PlayerManager.collectEachHits(target, powers));
+	},
+
+	activatePower: (hits) => {
+		const powersType = hits.map((power) => power.type);
+
+		return powersType.reduce((acc, type) => ({
+			[type]: Date.now(),
+		}), {}) ;
+	},
+
+	processPower: (context) => {
+		const { state: { flight, powers, duration }} = context;
+		const hits = PlayerManager
+			.collectPowerHits({ ...context, data: [[flight], powers] });
+
+		return {
+			duration: {
+				...duration,
+				...PlayerManager.activatePower(helper.flattenPowers(hits)),
+			},
+		};
+	},
+
 	calDamage: (target, bullets) =>
 		Math.max(target.health - bullets.reduce((a, c) => a + c.damage, 0), 0),
 
