@@ -113,6 +113,7 @@ const config = {
 			type: 'doubleBullet',
 			prob: 0.01,
 			image: doubleBullet,
+			duration: 15,
 		},
 	},
 	targets: {

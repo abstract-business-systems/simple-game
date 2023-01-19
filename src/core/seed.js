@@ -16,7 +16,7 @@ const seed = {
 	flight: config.flight,
 	targets: [],
 	objects: [],
-	duration: {
+	durations: {
 		doubleBullet: Date.now(),
 	},
 	powers: [{

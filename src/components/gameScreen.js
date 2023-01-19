@@ -1,4 +1,5 @@
 import React from 'react';
+import bulletManager from '../services/bulletManager';
 import getMode from '../services/urlService';
 import TwoDMode from './2dMode/2dMode';
 import ThreeDMode from './3dMode/3dMode';
@@ -21,7 +22,9 @@ const GameScreen = (context) =>
 			context.actions.updateMousePosition(event);
 			context.actions.updateFlightPosition();
 		} }
-		onClick={ () => context.actions.generateBullets('player') }
+		onClick={ () => (bulletManager.isActive(context, 'doubleBullet')
+			? context.actions.generateDoubleBullets('player')
+			: context.actions.generateBullets('player')) }
 	>
 		{GameMode[getMode(context)](context)}
 	</div>;
