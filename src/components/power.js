@@ -1,5 +1,5 @@
-import backgroundObject from './backgroundObject';
+import GameObject from './backgroundObject';
 
-const Power = backgroundObject('powers');
+const Power = GameObject('powers');
 
 export default Power;

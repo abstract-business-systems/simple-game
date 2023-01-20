@@ -5,7 +5,7 @@ import Flight from '../flight';
 import HealthBar from '../healthBar';
 import Score from '../score';
 import Target from '../target';
-import BGObject from '../object';
+import BackgroundObject from '../object';
 import Power from '../power';
 
 const TwoDMode = (context) => {
@@ -14,7 +14,7 @@ const TwoDMode = (context) => {
 	return (
 		<div role="twoDMode" className="twoDMode">
 			{ HealthBar() }
-			{ Container(state.objects, BGObject) }
+			{ Container(state.objects, BackgroundObject) }
 			{ Container(state.powers, Power) }
 			{ Score() }
 			{ Container(state.bullets, Bullet) }

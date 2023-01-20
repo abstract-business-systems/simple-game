@@ -2,7 +2,7 @@
 import React from 'react';
 import PositionService from '../services/positionService';
 
-const backgroundObject = (objectType) => (data) => {
+const GameObject = (objectType) => (data) => {
 	const { id, height, width, type, image } = data;
 	const { x, y } = PositionService.project(data);
 
@@ -23,4 +23,4 @@ const backgroundObject = (objectType) => (data) => {
 		/>) ;
 };
 
-export default backgroundObject;
+export default GameObject;

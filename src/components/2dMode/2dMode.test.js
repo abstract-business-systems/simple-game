@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import TwoDMode from './2dMode';
 import * as Container from '../container';
-import backgroundObject from '../backgroundObject';
+import GameObject from '../backgroundObject';
 import Bullet from '../bullet';
 import Target from '../target';
 import * as HealthBar from '../healthBar';
@@ -32,7 +32,7 @@ test('render twoDMode', () => {
 	const { getByRole } = render(TwoDMode(context));
 
 	expect(Container.default)
-		.toHaveBeenCalledWith(state.objects, backgroundObject);
+		.toHaveBeenCalledWith(state.objects, GameObject);
 	expect(Container.default).toHaveBeenCalledWith(state.bullets, Bullet);
 	expect(Container.default).toHaveBeenCalledWith(state.targets, Target);
 	expect(HealthBar.default).toHaveBeenCalled();
