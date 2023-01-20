@@ -58,7 +58,7 @@ const moveBullets = (context) => ({
 	bullets: PlayerManager.moveBullets(context),
 });
 
-const processBullets = PlayerManager.processHits;
+const processBullets = (context) => PlayerManager.processHits(context);
 
 const processPowers = (context) =>
 	PlayerManager.processPower(context);

@@ -6,13 +6,12 @@ import targetManager from '../services/targetManager';
 import bulletManager from '../services/bulletManager';
 
 describe('actions', () => {
-	const { restart,
-		updateMousePosition,
+	const { updateMousePosition,
+		restart,
 		addTargets,
 		updateObjects,
 		resetObjects,
 		generateBullets,
-		generateEnemyBullets,
 		moveBullets,
 		updateFlightPosition,
 		processBullets,
@@ -23,7 +22,12 @@ describe('actions', () => {
 		gameStart,
 		setAudio,
 		setHelp,
-		setPlayPause } = actions;
+		setPlayPause,
+		generateEnemyBullets,
+		generatePowers,
+		updatePowers,
+		processPowers,
+		generateDoubleBullets } = actions;
 
 	const returnValue = Symbol('return');
 
@@ -110,6 +114,20 @@ describe('actions', () => {
 		expect(result).toEqual(expected);
 	});
 
+	test('generateDoubleBullets returns bullets[]', () => {
+		jest.spyOn(bulletManager, 'generateDoubleBullets')
+			.mockReturnValue(returnValue);
+
+		const expected = { bullets: returnValue };
+
+		const result = generateDoubleBullets(context);
+
+		expect(bulletManager.generateDoubleBullets)
+			.toHaveBeenCalledWith(context);
+
+		expect(result).toEqual(expected);
+	});
+
 	test('generateEnemyBullets returns bullets[]', () => {
 		jest.spyOn(bulletManager, 'generateBullets')
 			.mockReturnValue(returnValue);
@@ -144,7 +162,20 @@ describe('actions', () => {
 		const result = updateObjects(context);
 
 		expect(playerManager.updateBackgroundObjects)
-			.toHaveBeenCalledWith(context);
+			.toHaveBeenCalledWith({ ...context, data: 'objects' });
+
+		expect(result).toMatchObject(expected);
+	});
+	test('test updatePowers', () => {
+		const expected = { powers: returnValue };
+
+		jest.spyOn(playerManager, 'updateBackgroundObjects')
+			.mockReturnValue(returnValue);
+
+		const result = updatePowers(context);
+
+		expect(playerManager.updateBackgroundObjects)
+			.toHaveBeenCalledWith({ ...context, data: 'powers' });
 
 		expect(result).toMatchObject(expected);
 	});
@@ -170,7 +201,23 @@ describe('actions', () => {
 
 		const result = generateObjects(context);
 
-		expect(playerManager.generateObjects).toHaveBeenCalledWith(context);
+		expect(playerManager.generateObjects).toHaveBeenCalledWith({
+			...context, data: 'objects',
+		});
+		expect(result).toMatchObject(expected);
+	});
+
+	test('test generatePowers', () => {
+		const expected = { powers: returnValue };
+
+		jest.spyOn(playerManager, 'generateObjects')
+			.mockReturnValue(returnValue);
+
+		const result = generatePowers(context);
+
+		expect(playerManager.generateObjects).toHaveBeenCalledWith({
+			...context, data: 'powers',
+		});
 		expect(result).toMatchObject(expected);
 	});
 
@@ -194,6 +241,18 @@ describe('actions', () => {
 		const result = processBullets(context);
 
 		expect(playerManager.processHits).toHaveBeenCalledWith(context);
+		expect(result).toEqual(expected);
+	});
+
+	test('process Powers', () => {
+		jest.spyOn(playerManager, 'processPower')
+			.mockReturnValue(returnValue);
+
+		const expected = returnValue;
+
+		const result = processPowers(context);
+
+		expect(playerManager.processPower).toHaveBeenCalledWith(context);
 		expect(result).toEqual(expected);
 	});
 
