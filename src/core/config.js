@@ -9,6 +9,8 @@ const config = {
 	tickerDelay: 100,
 	health: 100,
 	damage: 0.1,
+	bulletsCount: 2,
+	quad: 4,
 	rndLength: 16,
 	threeDProjectY: 3,
 	defaultMode: '2d',

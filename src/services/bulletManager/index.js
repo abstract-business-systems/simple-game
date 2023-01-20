@@ -1,5 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import { keys, map, range } from '@laufire/utils/collection';
+import { rndBetween } from '@laufire/utils/lib';
 import { rndString, rndValue } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 
@@ -11,8 +12,8 @@ const bulletManager = {
 			y: config.targets.shooter.y,
 		}),
 
-		player: ({ state: { flight: { x }}, config, data }) => ({
-			x: x + data,
+		player: ({ config, data }) => ({
+			x: data,
 			y: config.bulletYAxis,
 		}),
 	},
@@ -25,7 +26,7 @@ const bulletManager = {
 			id: rndString(rndLength),
 			isHit: false,
 			...bulletManager.positions[data.team]({ ...context,
-				data: data.bulletsX }),
+				data: data.bulletXAxis }),
 		};
 	},
 
@@ -45,35 +46,25 @@ const bulletManager = {
 		return bulletManager.isFuture(state.durations[power]);
 	},
 
-	makeBullets: (context) => {
-		const { data, config: { rndLength }} = context;
-
-		return {
-			...data,
-			id: rndString(rndLength),
-			isHit: false,
-			...bulletManager.positions[data.team]({ ...context,
-				data: data.bulletsX }),
-
-		};
-	},
-
 	generateDoubleBullets: (context) => {
-		const { state: { bullets }, data } = context;
+		const { state: { bullets, flight: { x, width }},
+			config: { bulletsCount, quad }, data } = context;
+		const flightQuarter = width / quad;
 
 		return [...bullets,
-			...map(range(-1, 1), (num) => bulletManager.makeBullet({
+			...map(range(0, bulletsCount), () => bulletManager.makeBullet({
 				...context,
 				data: {
 					...bulletManager.getType(context),
 					team: data,
-					bulletsX: num,
+					bulletXAxis: rndBetween(x - flightQuarter,
+						x + flightQuarter),
 				},
 			}))];
 	},
 
 	generateBullets: (context) => {
-		const { state: { bullets }, data, config } = context;
+		const { state: { bullets, flight: { x }}, data, config } = context;
 		const hasShootingProbability = HelperService
 			.isProbable(config.shootingProbMultiplier);
 
@@ -84,7 +75,7 @@ const bulletManager = {
 					data: {
 						...bulletManager.getType(context),
 						team: data || 'enemy',
-						bulletsX: 0,
+						bulletXAxis: x,
 					},
 				})]
 			: bullets;

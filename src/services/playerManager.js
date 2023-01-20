@@ -3,6 +3,7 @@ import { find, keys } from '@laufire/utils/collection';
 import * as helper from './helperService';
 import { rndString } from '@laufire/utils/random';
 import * as helperService from '../services/helperService';
+import { adjustTime } from './ticker/timeService';
 
 const hundred = 100;
 
@@ -169,11 +170,14 @@ const PlayerManager = {
 			PlayerManager.collectEachHits(target, powers));
 	},
 
-	activatePower: (hits) => {
+	activatePower: (context, hits) => {
+		const { config: { powers }} = context;
 		const powersType = hits.map((power) => power.type);
 
 		return powersType.reduce((acc, type) => ({
-			[type]: Date.now(),
+			[type]: adjustTime(
+				Date.now(), powers[type].duration, 'seconds'
+			),
 		}), {}) ;
 	},
 
@@ -183,10 +187,13 @@ const PlayerManager = {
 			.collectPowerHits({ ...context, data: [[flight], powers] });
 
 		return {
-			duration: {
+			durations: {
 				...duration,
-				...PlayerManager.activatePower(helper.flattenPowers(hits)),
+				...PlayerManager.activatePower(context,
+					helper.flattenPowers(hits)),
 			},
+			powers: PlayerManager
+				.removePowers(powers, helper.flattenPowers(hits)),
 		};
 	},
 
@@ -198,6 +205,12 @@ const PlayerManager = {
 
 	removeTargets: ({ state: { targets }}) =>
 		targets.filter((target) => target.health !== 0),
+
+	removePowers: (powers, hitPowers) => {
+		const powersId = hitPowers.map((hitPower) => hitPower.id);
+
+		return powers.filter((power) => !powersId.includes(power.id));
+	},
 };
 
 export default PlayerManager;
