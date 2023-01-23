@@ -1,5 +1,5 @@
 import PositionService from '../services/positionService';
-import GameObject from './backgroundObject';
+import GameObject from './gameObject';
 import { render } from '@testing-library/react';
 import { rndBetween } from '@laufire/utils/lib';
 import { rndString, rndValues } from '@laufire/utils/random';
@@ -10,6 +10,7 @@ test('test backgroundObjects', () => {
 		width: rndBetween(),
 		type: rndString(),
 		image: rndString(),
+		id: rndString(),
 	};
 	const objectType = rndValues(['objects', 'powers']);
 	const projectedValue = {

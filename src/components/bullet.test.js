@@ -22,16 +22,19 @@ describe('test bullets', () => {
 			image: bulletImg,
 			team: rndValue(['player', 'enemy']),
 			hue: 0 };
+		const style = {
+			height: `${ bullet.height }vw`,
+			width: `${ bullet.width }vw`,
+			left: `${ returnValue.x }%`,
+			top: `${ returnValue.y }%`,
+			filter: `hue-rotate(${ bullet.color }deg)`,
+		};
 
 		const component = render(Bullet(bullet)).getByRole(bullet.team);
 
 		expect(component).toBeInTheDocument();
 		expect(component).toHaveClass(bullet.team);
-		expect(component).toHaveStyle({ height: `${ bullet.height }vw`,
-			width: `${ bullet.width }vw`,
-			left: `${ returnValue.x }%`,
-			top: `${ returnValue.y }%`,
-			filter: `hue-rotate(${ bullet.color }deg)` });
+		expect(component).toHaveStyle(style);
 		expect(PositionService.project).toBeCalledWith(bullet);
 		expect(component).toHaveAttribute('src', bulletImg);
 	});
