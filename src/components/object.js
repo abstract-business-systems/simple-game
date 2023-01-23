@@ -1,4 +1,4 @@
-import GameObject from './backgroundObject';
+import GameObject from './gameObject';
 
 const BackgroundObject = GameObject('objects');
 

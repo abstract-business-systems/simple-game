@@ -150,10 +150,11 @@ const PlayerManager = {
 		return {
 			targets: PlayerManager.updateHealth(playerHits),
 			health: flightHealth,
-			bullets: PlayerManager.updateBulletIsHit(helper.flattenBullets([
-				...enemyHits,
-				...playerHits,
-			]),
+			bullets: PlayerManager.updateBulletIsHit(helper
+				.flattenObjects({ hits: [
+					...enemyHits,
+					...playerHits,
+				], data: 'bullets' }),
 			bullets),
 		};
 	},
@@ -185,15 +186,15 @@ const PlayerManager = {
 		const { state: { flight, powers, duration }} = context;
 		const hits = PlayerManager
 			.collectPowerHits({ ...context, data: [[flight], powers] });
+		const flattenPowers = helper
+			.flattenObjects({ hits: hits, data: 'powers' });
 
 		return {
 			durations: {
 				...duration,
-				...PlayerManager.activatePower(context,
-					helper.flattenPowers(hits)),
+				...PlayerManager.activatePower(context, flattenPowers),
 			},
-			powers: PlayerManager
-				.removePowers(powers, helper.flattenPowers(hits)),
+			powers: PlayerManager.removePowers(powers, flattenPowers),
 		};
 	},
 
