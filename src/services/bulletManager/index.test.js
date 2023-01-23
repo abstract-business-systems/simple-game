@@ -4,6 +4,7 @@ import bulletManager from '.';
 import * as HelperService from '../helperService';
 import { collection, random } from '@laufire/utils';
 import { rndValue } from '@laufire/utils/random';
+import PositionService from '../positionService';
 
 describe.only('testing bulletManager', () => {
 	const two = 2;
@@ -11,7 +12,7 @@ describe.only('testing bulletManager', () => {
 	const ten = 10;
 
 	const { generateBullets,
-		getType, makeBullet, positions } = bulletManager;
+		getType, makeBullet, positions, generateDoubleBullets } = bulletManager;
 
 	describe('makeBullets', () => {
 		const id = Symbol('id');
@@ -24,8 +25,9 @@ describe.only('testing bulletManager', () => {
 		};
 
 		test('get positions', () => {
-			const team = random.rndValue(['enemy', 'player']);
-			const data = { ...getData, team };
+			const team = rndValue(['enemy', 'player']);
+			const bulletXAxis = Symbol('bulletXAxis');
+			const data = { ...getData, team, bulletXAxis };
 			const context = {
 				config,
 				data,
@@ -48,7 +50,7 @@ describe.only('testing bulletManager', () => {
 			expect(random.rndString)
 				.toHaveBeenCalledWith(context.config.rndLength);
 			expect(bulletManager.positions[team])
-				.toHaveBeenCalledWith(context);
+				.toHaveBeenCalledWith({ ...context, data: bulletXAxis });
 		});
 	});
 
@@ -107,10 +109,13 @@ describe.only('testing bulletManager', () => {
 	describe.only('generateBullets renders bullets[{}]', () => {
 		const bullet = Symbol('bullet');
 		const bullets = range(0, rndBetween(five, ten)).map(Symbol);
+		const flight = {
+			x: rndBetween(five, ten),
+		};
 		const typeConfig = {
 			[random.rndString()]: Symbol(random.rndString()),
 		};
-		const state = { bullets };
+		const state = { bullets, flight };
 		const config = {
 			shootingProbMultiplier: Symbol('shootingProbMultiplier'),
 		};
@@ -119,12 +124,14 @@ describe.only('testing bulletManager', () => {
 			const data = rndValue(['player', '']);
 			const context = { state, data, config };
 			const team = data || 'enemy';
+			const bulletXAxis = flight.x;
 
 			const bulletProps = {
 				...context,
 				data: {
 					... typeConfig,
 					team,
+					bulletXAxis,
 				},
 			};
 
@@ -180,15 +187,96 @@ describe.only('testing bulletManager', () => {
 	});
 
 	test('player positions', () => {
-		const state = { flight: { x: Symbol('x') }};
+		const data = Symbol('x');
 		const config = { bulletYAxis: Symbol('y') };
 
-		const result = positions.player({ state, config });
+		const result = positions.player({ data, config });
 		const expected = {
-			x: state.flight.x,
+			x: data,
 			y: config.bulletYAxis,
 		};
 
 		expect(result).toEqual(expected);
+	});
+
+	describe.only('generateDoubleBullets renders bullets[{}]', () => {
+		const bulletsCount = 2;
+		const bullet = Symbol;
+		const bullets = range(0, rndBetween(five, ten)).map(Symbol);
+		const flight = {
+			x: rndBetween(five, ten),
+			width: rndBetween(five, ten),
+		};
+		const quad = 4;
+		const typeConfig = {
+			[random.rndString()]: Symbol(random.rndString()),
+		};
+		const state = { bullets, flight };
+		const config = { bulletsCount, quad };
+
+		test('team player', () => {
+			const data = 'player';
+			const context = { state, data, config };
+			const team = data;
+			const bulletXAxis = Symbol('x');
+
+			const bulletProps = {
+				...context,
+				data: {
+					... typeConfig,
+					team,
+					bulletXAxis,
+				},
+			};
+
+			jest.spyOn(bulletManager, 'makeBullet')
+				.mockReturnValue(bullet);
+			jest.spyOn(bulletManager, 'getType').mockReturnValue(typeConfig);
+			jest.spyOn(PositionService, 'getBulletPosition')
+				.mockReturnValue(Symbol('bulletPosition'));
+
+			const result = generateDoubleBullets(context);
+			const expected = [...bullets, bullet, bullet];
+
+			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+			expect(PositionService.getBulletPosition)
+				.toHaveBeenCalledWith(context);
+			range((0, bulletsCount), () => expect(bulletManager.makeBullet)
+				.toHaveBeenCalledWith(bulletProps));
+			expect(result).toEqual(expected);
+		});
+	});
+	describe('isActive', () => {
+		const returnValue = Symbol('Future');
+		const power = Symbol('doubleBullet');
+		const state = { durations: { power }};
+		const context = {
+			state,
+		};
+
+		test('whether isFuture is called', () => {
+			jest.spyOn(bulletManager, 'isFuture').mockReturnValue(returnValue);
+
+			const result = bulletManager.isActive(context, power);
+
+			expect(bulletManager.isFuture)
+				.toHaveBeenCalledWith(state.durations[power]);
+			expect(result).toEqual(returnValue);
+		});
+	});
+	describe('isFuture', () => {
+		const msPerDay = 86400000;
+		const expectations = [
+			['past', false, Date.now() - msPerDay],
+			['future', true, Date.now() + msPerDay],
+		];
+
+		test.each(expectations)('when input date is in the %p than'
+			+ 'new date isFuture returns %p ',
+		(
+			dummy, expectation, value
+		) => {
+			expect(bulletManager.isFuture(value)).toEqual(expectation);
+		});
 	});
 });
