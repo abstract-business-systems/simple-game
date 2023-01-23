@@ -72,16 +72,18 @@ describe('HelperService', () => {
 		expect(result).toBeFalsy();
 	});
 
-	test('flattenBullets', () => {
+	test('flattenObjects', () => {
+		const gameObject = range(0, random.rndBetween(one, ten))
+			.map((data) => ({ id: data, isHit: false }));
 		const hits = range(0, random.rndBetween(one, ten)).map(() => ({
 			targets: Symbol('targetValue'),
-			bullets: range(0, random.rndBetween(one, ten))
-				.map((data) => ({ id: data, isHit: false })),
+			bullets: gameObject,
+			powers: gameObject,
 		}));
+		const object = random.rndValue(['powers', 'bullets']);
 
-		const expectation = hits.map(({ bullets }) => bullets).flat();
-
-		const result = helper.flattenBullets(hits);
+		const result = helper.flattenObjects({ hits: hits, data: object });
+		const expectation = hits.map((hit) => hit[object]).flat();
 
 		expect(result).toMatchObject(expectation);
 	});

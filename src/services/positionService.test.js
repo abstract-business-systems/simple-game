@@ -12,6 +12,7 @@ describe('PositionService', () => {
 		getAllPoints,
 		threeDProject,
 		getHealthProps,
+		getBulletPosition,
 	} = positionService;
 	const twentyFive = 25;
 	const hundred = 100;
@@ -40,6 +41,29 @@ describe('PositionService', () => {
 		expect(data).toMatchObject(expected);
 	});
 
+	describe('getBulletPosition', () => {
+		test('getBulletPosition', () => {
+			const state = {
+				flight: {
+					x: 50,
+					width: 80,
+				},
+			};
+
+			const flightQuarter = state.flight.width / config.quad;
+			const context = { state, config };
+
+			jest.spyOn(random, 'rndBetween').mockReturnValue(returnValue);
+
+			const result = getBulletPosition(context);
+			const expected = returnValue;
+
+			expect(random.rndBetween)
+				.toHaveBeenCalledWith(state.flight.x - flightQuarter,
+					state.flight.x + flightQuarter);
+			expect(result).toEqual(expected);
+		});
+	});
 	test('limitMovement returns value greater than or equal to 0', () => {
 		jest.spyOn(Math, 'max').mockReturnValue(returnValue);
 		jest.spyOn(Math, 'min').mockReturnValue(returnValue);
