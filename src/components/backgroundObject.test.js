@@ -1,8 +1,8 @@
 import PositionService from '../services/positionService';
-import backgroundObject from './backgroundObject';
+import GameObject from './backgroundObject';
 import { render } from '@testing-library/react';
 import { rndBetween } from '@laufire/utils/lib';
-import { rndString } from '@laufire/utils/random';
+import { rndString, rndValues } from '@laufire/utils/random';
 
 test('test backgroundObjects', () => {
 	const data = {
@@ -11,7 +11,7 @@ test('test backgroundObjects', () => {
 		type: rndString(),
 		image: rndString(),
 	};
-
+	const objectType = rndValues(['objects', 'powers']);
 	const projectedValue = {
 		x: rndBetween(),
 		y: rndBetween(),
@@ -27,8 +27,8 @@ test('test backgroundObjects', () => {
 
 	jest.spyOn(PositionService, 'project').mockReturnValue(projectedValue);
 
-	const component = render(backgroundObject(data))
-		.getByRole('backgroundObject');
+	const component = render(GameObject(objectType)(data))
+		.getByRole(objectType);
 
 	expect(component).toHaveStyle(style);
 	expect(component).toHaveClass(data.type);

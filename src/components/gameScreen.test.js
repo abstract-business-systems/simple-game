@@ -7,15 +7,20 @@ import { rndString, rndValue } from '@laufire/utils/random';
 import { render, fireEvent } from '@testing-library/react';
 import * as getMode from '../services/urlService';
 import GameScreen from './gameScreen';
+import bulletManager from '../services/bulletManager';
 
 describe('testing GameScreen', () => {
 	const context = {
 		state: {
 			bgnScreenY: rndString(),
+			durations: {
+				doubleBullet: rndString(),
+			},
 		},
 		actions: {
 			updateMousePosition: jest.fn(),
 			updateFlightPosition: jest.fn(),
+			generateDoubleBullets: jest.fn(),
 			generateBullets: jest.fn(),
 		},
 	};
@@ -37,7 +42,9 @@ describe('testing GameScreen', () => {
 	test('event check', () => {
 		jest.spyOn(actions, 'updateMousePosition');
 		jest.spyOn(actions, 'updateFlightPosition');
+		jest.spyOn(actions, 'generateDoubleBullets');
 		jest.spyOn(actions, 'generateBullets');
+		jest.spyOn(bulletManager, 'isActive').mockReturnValue(true);
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 
 		const component = render(GameScreen(context)).getByRole('gameScreen');
@@ -54,7 +61,10 @@ describe('testing GameScreen', () => {
 		expect(actions.updateMousePosition).toHaveBeenCalledWith(expect
 			.objectContaining(mouseEvent));
 		expect(actions.updateFlightPosition).toHaveBeenCalledWith();
-		expect(actions.generateBullets).toHaveBeenCalledWith('player');
+		expect(bulletManager.isActive)
+			.toHaveBeenCalledWith(context, 'doubleBullet');
+		expect(actions.generateDoubleBullets).toHaveBeenCalledWith('player');
+		// expect(actions.generateBullets).toHaveBeenCalledWith('player');
 	});
 
 	test('gameMode', () => {
