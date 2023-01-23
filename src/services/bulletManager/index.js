@@ -1,8 +1,8 @@
 /* eslint-disable no-magic-numbers */
 import { keys, map, range } from '@laufire/utils/collection';
-import { rndBetween } from '@laufire/utils/lib';
 import { rndString, rndValue } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
+import PositionService from '../positionService';
 
 const bulletManager = {
 
@@ -47,9 +47,8 @@ const bulletManager = {
 	},
 
 	generateDoubleBullets: (context) => {
-		const { state: { bullets, flight: { x, width }},
-			config: { bulletsCount, quad }, data } = context;
-		const flightQuarter = width / quad;
+		const { state: { bullets },
+			config: { bulletsCount }, data } = context;
 
 		return [...bullets,
 			...map(range(0, bulletsCount), () => bulletManager.makeBullet({
@@ -57,8 +56,7 @@ const bulletManager = {
 				data: {
 					...bulletManager.getType(context),
 					team: data,
-					bulletXAxis: rndBetween(x - flightQuarter,
-						x + flightQuarter),
+					bulletXAxis: PositionService.getBulletPosition(context),
 				},
 			}))];
 	},

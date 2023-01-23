@@ -8,7 +8,12 @@ const PositionService = {
 		x: x - (width / two),
 		y: y - (height / two),
 	}),
+	getBulletPosition: ({ state: { flight: { x, width }},
+		config: { quad }}) => {
+		const flightQuarter = width / quad;
 
+		return rndBetween(x - flightQuarter, x + flightQuarter);
+	},
 	limitMovement: ({ state: { flight: { width }, position: { x }}}) =>
 		Math.min(hundred - (width / two), Math
 			.max(x, 0 + (width / two))),
