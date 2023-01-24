@@ -1,5 +1,5 @@
 import PositionService from './positionService';
-import { find, keys } from '@laufire/utils/collection';
+import { find, values } from '@laufire/utils/collection';
 import * as helper from './helperService';
 import { rndString } from '@laufire/utils/random';
 import * as helperService from '../services/helperService';
@@ -52,26 +52,20 @@ const PlayerManager = {
 		...context.data,
 	}),
 
-	createObjects: (context) => {
-		const [objectKeys, gameObject] = context.data;
-
-		return objectKeys
-			.filter((type) =>
-				helperService.isProbable(context.config[gameObject][type].prob))
-			.map((item) => PlayerManager.getObjects({
-				...context,
-				data: context.config[gameObject][item],
-			}));
-	},
+	createObjects: (context) => context.data
+		.filter(({ prob }) => helperService.isProbable(prob))
+		.map((item) => PlayerManager.getObjects({
+			...context,
+			data: item,
+		})),
 
 	generateObjects: (context) => {
 		const { data: gameObject } = context;
-		const objectKeys = keys(context.config[gameObject]);
 
 		return [
 			...context.state[gameObject],
 			...PlayerManager.createObjects({
-				...context, data: [...[objectKeys], gameObject],
+				...context, data: values(context.config[gameObject]),
 			}),
 		];
 	},
