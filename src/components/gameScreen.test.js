@@ -39,12 +39,17 @@ describe('testing GameScreen', () => {
 		});
 	});
 
-	test('event check', () => {
+	const expectations = [
+		[true, 'generateDoubleBullets'],
+		[false, 'generateBullets'],
+	];
+
+	test.each(expectations)('event check', (boolean, expected) => {
 		jest.spyOn(actions, 'updateMousePosition');
 		jest.spyOn(actions, 'updateFlightPosition');
 		jest.spyOn(actions, 'generateDoubleBullets');
 		jest.spyOn(actions, 'generateBullets');
-		jest.spyOn(bulletManager, 'isActive').mockReturnValue(true);
+		jest.spyOn(bulletManager, 'isActive').mockReturnValue(boolean);
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 
 		const component = render(GameScreen(context)).getByRole('gameScreen');
@@ -63,8 +68,7 @@ describe('testing GameScreen', () => {
 		expect(actions.updateFlightPosition).toHaveBeenCalledWith();
 		expect(bulletManager.isActive)
 			.toHaveBeenCalledWith(context, 'doubleBullet');
-		expect(actions.generateDoubleBullets).toHaveBeenCalledWith('player');
-		// expect(actions.generateBullets).toHaveBeenCalledWith('player');
+		expect(actions[expected]).toHaveBeenCalledWith('player');
 	});
 
 	test('gameMode', () => {
