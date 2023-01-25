@@ -7,6 +7,7 @@ import { random } from '@laufire/utils';
 import * as helperService from './helperService';
 import { rndBetween } from '@laufire/utils/lib';
 import helper from '../testHelper/helper';
+import * as timeService from './ticker/timeService';
 
 describe('PlayerManager', () => {
 	const { isAlive, decreaseHealth, backGroundMovingAxis,
@@ -14,8 +15,9 @@ describe('PlayerManager', () => {
 		detectBulletHit, removeHitBullets,
 		generateObjects, createObjects, removeTargets,
 		isBulletHit, calDamage, detectOverLapping, filterTeamBullets
-		, collectHits, updateHealth, processHits,
-		filterBullet, updateScore, getObjects } = PlayerManager;
+		, collectHits, updateHealth, processHits, activatePower,
+		filterBullet, updateScore, getObjects, processPower,
+		removePowers, collectEachHits, collectPowerHits } = PlayerManager;
 	const { range, secure, keys } = collection;
 	const hundred = 100;
 	const two = 2;
@@ -354,7 +356,7 @@ describe('PlayerManager', () => {
 			.mockReturnValue(targets);
 		jest.spyOn(PlayerManager, 'updateBulletIsHit')
 			.mockReturnValue(bullets);
-		jest.spyOn(helperService, 'flattenBullets')
+		jest.spyOn(helperService, 'flattenObjects')
 			.mockReturnValue(flattenBulletsValue);
 
 		const result = processHits(context);
@@ -369,8 +371,11 @@ describe('PlayerManager', () => {
 		[enemyHits, playerHits].map((team) =>
 			expect(PlayerManager.updateHealth)
 				.toHaveBeenCalledWith(team));
-		expect(helperService.flattenBullets)
-			.toHaveBeenCalledWith([...enemyHits, ...playerHits]);
+		expect(helperService.flattenObjects)
+			.toHaveBeenCalledWith({
+				hits: [...enemyHits, ...playerHits],
+				data: 'bullets',
+			});
 		expect(PlayerManager.updateBulletIsHit)
 			.toHaveBeenCalledWith(flattenBulletsValue, bullets);
 
@@ -466,7 +471,8 @@ describe('PlayerManager', () => {
 		const prob = Symbol('prob');
 		const height = Symbol('height');
 		const width = Symbol('width');
-		const types = keys(config.objects);
+		const gameObject = random.rndValue(['objects', 'powers']);
+		const types = [keys(config[gameObject]), gameObject];
 		const type = Symbol('type');
 		const context = {
 			config: {
@@ -484,33 +490,44 @@ describe('PlayerManager', () => {
 						type,
 					},
 				},
+				powers: {
+					doubleBullet: {
+						width,
+						height,
+						type,
+						prob,
+					},
+				},
 
 			},
 			state: {
 				objects: [Symbol('objects')],
+				powers: [Symbol('powers')],
 			},
 			data: types,
 		};
 
 		test(' generateObjects is performed', () => {
-			const objectKeys = Symbol('objectKeys');
+			const objectKeys = [Symbol('objectKeys')];
 			const newObjects = [Symbol('newObjects')];
 
 			jest.spyOn(collection, 'keys').mockReturnValue(objectKeys);
 
 			jest.spyOn(PlayerManager, 'createObjects')
 				.mockReturnValue(newObjects);
-			const result = generateObjects(context);
+			const result = generateObjects({ ...context, data: gameObject });
 
 			expect(PlayerManager.createObjects)
-				.toHaveBeenCalledWith({ ...context, data: objectKeys });
-			expect(collection.keys)
-				.toHaveBeenCalledWith(context.config.objects);
-			expect(result).toEqual([...context.state.objects, ...newObjects]);
+				.toHaveBeenCalledWith({ ...context,
+					data: collection.values(context.config[gameObject]) });
+
+			expect(result).toEqual([...context.state[gameObject],
+				...newObjects]);
 		});
 
 		test('to test getObjects', () => {
-			const item = random.rndValue(context.data);
+			const data = collection.values(context.config[gameObject]);
+			const item = random.rndValue(data);
 			const rndString = Symbol('rndString');
 			const num = random.rndBetween(0, hundred);
 
@@ -525,11 +542,9 @@ describe('PlayerManager', () => {
 				.mockReturnValue(height);
 
 			const result = getObjects({ ...context,
-				data: context.config.objects[item] });
+				data: item });
 
 			const expected = {
-				height: context.config.objects[item].height,
-				width: context.config.objects[item].width,
 				x: num,
 				y: -num,
 			};
@@ -543,10 +558,12 @@ describe('PlayerManager', () => {
 
 		test('Test updateBackgroundObjects', () => {
 			const state
-			= { objects: [{ y: rndBetween() }, { y: rndBetween() }] };
-			const result = updateBackgroundObjects({ state, config });
+			= { objects: [{ y: rndBetween() }, { y: rndBetween() }],
+				powers: [{ y: rndBetween() }, { y: rndBetween() }] };
+			const data = random.rndValue(['objects', 'powers']);
+			const result = updateBackgroundObjects({ state, config, data });
 
-			const expectation = state.objects.map((obj) => ({
+			const expectation = state[data].map((obj) => ({
 				...obj,
 				y: obj.y + config.bgnScreenYIncre,
 			}));
@@ -557,6 +574,10 @@ describe('PlayerManager', () => {
 		test('resetBackgroundObjects is executed', () => {
 			const state = {
 				objects: [
+					{ y: rndBetween(0, ninetyNine) },
+					{ y: rndBetween(0, ninetyNine) },
+				],
+				powers: [
 					{ y: rndBetween(0, ninetyNine) },
 					{ y: rndBetween(0, ninetyNine) },
 				],
@@ -582,7 +603,8 @@ describe('PlayerManager', () => {
 	});
 
 	describe('to test create Objects', () => {
-		const types = keys(config.objects);
+		const gameObject = random.rndValue(['objects', 'powers']);
+		const types = collection.values(config[gameObject]);
 		const objects = Symbol('objects');
 		const mockContext = {
 			data: types,
@@ -595,16 +617,15 @@ describe('PlayerManager', () => {
 				.mockReturnValue(objects);
 
 			const result = createObjects(mockContext);
-			const expected = types.map(() => objects);
+			const expected = types.filter(() => true).map(() => objects);
 
-			types.map((type) => {
+			types.filter(({ prob }) => {
 				expect(helperService.isProbable)
-					.toHaveBeenCalledWith(mockContext
-						.config.objects[type].prob);
-				expect(PlayerManager.getObjects)
-					.toHaveBeenCalledWith({ ...mockContext,
-						data: mockContext.config.objects[type] });
-			});
+					.toHaveBeenCalledWith(prob);
+			}).map((item) => expect(PlayerManager.getObjects)
+				.toHaveBeenCalledWith({ ...mockContext,
+					data: item }));
+
 			expect(result).toEqual(expected);
 		});
 
@@ -614,13 +635,139 @@ describe('PlayerManager', () => {
 			const result = createObjects(mockContext);
 			const expected = [];
 
-			types.map((type) => {
+			types.filter(({ prob }) => {
 				expect(helperService.isProbable)
-					.toHaveBeenCalledWith(mockContext
-						.config.objects[type].prob);
-			});
+					.toHaveBeenCalledWith(prob);
+			}).map((item) => expect(PlayerManager.getObjects)
+				.toHaveBeenCalledWith({ ...mockContext,
+					data: item }));
 
 			expect(result).toEqual(expected);
 		});
+	});
+
+	test('processPower', () => {
+		const flight = Symbol('flight');
+		const powers = [Symbol('powers')];
+		const duration = Symbol('duration');
+		const hits = Symbol('hits');
+		const flattenPowersValue = Symbol('flattenObjectsValue');
+		const activatePowerValue = Symbol('activatePowerValue');
+		const removePowersValue = Symbol('removePowersValue');
+		const state = {
+			flight,
+			powers,
+			duration,
+		};
+		const context = { state };
+
+		jest.spyOn(PlayerManager, 'collectPowerHits').mockReturnValue(hits);
+		jest.spyOn(helperService, 'flattenObjects')
+			.mockReturnValue(flattenPowersValue);
+		jest.spyOn(PlayerManager, 'activatePower')
+			.mockReturnValue(activatePowerValue);
+		jest.spyOn(PlayerManager, 'removePowers')
+			.mockReturnValue(removePowersValue);
+
+		const result = processPower(context);
+
+		const expected = {
+			durations: {
+				...duration,
+				...activatePowerValue,
+			},
+			powers: removePowersValue,
+		};
+
+		expect(helperService.flattenObjects)
+			.toHaveBeenCalledWith({ hits: hits, data: 'powers' });
+		expect(PlayerManager.collectPowerHits)
+			.toHaveBeenCalledWith({ ...context, data: [[flight], powers] });
+		expect(PlayerManager.activatePower)
+			.toHaveBeenCalledWith(context, flattenPowersValue);
+		expect(PlayerManager.removePowers)
+			.toHaveBeenCalledWith(powers, flattenPowersValue);
+		expect(result).toEqual(expected);
+	});
+
+	test('removePowers', () => {
+		const powers = secure(rndRange.map(() => ({ id: Symbol('id') })));
+		const hitPowers = random.rndValues(powers, four);
+		const powersId = hitPowers.map((hitPower) => hitPower.id);
+
+		const expectation = powers.filter((power) =>
+			!powersId.includes(power.id));
+
+		const result = removePowers(powers, hitPowers);
+
+		expect(result).toEqual(expectation);
+	});
+
+	test('collectPowerHits', () => {
+		const targets = secure(rndRange.map(() => ({ id: Symbol('id') })));
+
+		const powers = [Symbol('powers')];
+		const data = [targets, powers];
+		const expectation = targets.map(() => returnValue);
+
+		jest.spyOn(PlayerManager, 'collectEachHits')
+			.mockReturnValue(returnValue);
+
+		const result = collectPowerHits({ data });
+
+		targets.forEach((target) => expect(PlayerManager.collectEachHits)
+			.toHaveBeenCalledWith(target, powers));
+		expect(result).toMatchObject(expectation);
+	});
+
+	test('collectEachHits', () => {
+		const target = Symbol('targetValue');
+		const powers = Symbol('powersValue');
+
+		jest.spyOn(PlayerManager, 'filterBullet')
+			.mockReturnValue(returnValue);
+
+		const expectation = { target: target,
+			powers: returnValue };
+
+		const result = collectEachHits(target, powers);
+
+		expect(PlayerManager.filterBullet)
+			.toHaveBeenCalledWith(powers, target);
+
+		expect(result).toEqual(expectation);
+	});
+
+	test('activatePower', () => {
+		const powers = {
+			doubleBullet: {
+				width: 5,
+				height: 10,
+				type: 'doubleBullet',
+				prob: 0.01,
+				duration: 15,
+			},
+		};
+		const unixTime = Symbol('newTime');
+		const hits = random.rndValues(powers, two);
+		const context = { config: { powers }};
+		const powersType = hits.map((power) => power.type);
+		const adjustTimeValue = Symbol('adjustTime');
+		const second = 'seconds';
+
+		jest.spyOn(timeService, 'adjustTime').mockReturnValue(adjustTimeValue);
+		jest.spyOn(Date, 'now').mockReturnValue(unixTime);
+
+		const result = activatePower(context, hits);
+
+		const expected = powersType.reduce((acc, type) => ({
+			[type]: adjustTimeValue,
+		}), {});
+
+		powersType.forEach((type) => expect(timeService.adjustTime)
+			.toHaveBeenCalledWith(
+				unixTime, powers[type].duration, second
+			));
+		expect(result).toMatchObject(expected);
 	});
 });

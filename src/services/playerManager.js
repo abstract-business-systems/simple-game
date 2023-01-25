@@ -153,9 +153,9 @@ const PlayerManager = {
 		};
 	},
 
-	collectEachHits: (target, bullets) => ({
+	collectEachHits: (target, powers) => ({
 		target: target,
-		powers: PlayerManager.filterBullet(bullets, target),
+		powers: PlayerManager.filterBullet(powers, target),
 	}),
 
 	collectPowerHits: (context) => {
