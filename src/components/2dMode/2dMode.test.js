@@ -9,7 +9,6 @@ import * as HealthBar from '../healthBar';
 import * as Score from '../score';
 import * as Flight from '../flight';
 import Power from '../power';
-import { rndValues } from '@laufire/utils/random';
 
 test('render twoDMode', () => {
 	const state = {
@@ -18,13 +17,22 @@ test('render twoDMode', () => {
 		objects: Symbol('objects'),
 		powers: Symbol('powers'),
 	};
+	const components = [
+		'healthBar',
+		'objects',
+		'powers',
+		'score-card',
+		'bullet',
+		'flight',
+		'target',
+		'twoDMode',
+	];
 	const context = { state	};
-	const bulletTeam = rndValues(['player', 'enemy']);
 
 	jest.spyOn(Container, 'default')
 		.mockReturnValueOnce(<div role="objects"/>)
 		.mockReturnValueOnce(<div role="powers"/>)
-		.mockReturnValueOnce(<div role={ bulletTeam }/>)
+		.mockReturnValueOnce(<div role="bullet"/>)
 		.mockReturnValueOnce(<div role="target"/>);
 
 	jest.spyOn(HealthBar, 'default')
@@ -45,13 +53,8 @@ test('render twoDMode', () => {
 	expect(HealthBar.default).toHaveBeenCalled();
 	expect(Flight.default).toHaveBeenCalled();
 	expect(Score.default).toHaveBeenCalled();
-	expect(getByRole('healthBar')).toBeInTheDocument();
-	expect(getByRole('objects')).toBeInTheDocument();
-	expect(getByRole('powers')).toBeInTheDocument();
-	expect(getByRole('score-card')).toBeInTheDocument();
-	expect(getByRole(bulletTeam)).toBeInTheDocument();
-	expect(getByRole('flight')).toBeInTheDocument();
-	expect(getByRole('target')).toBeInTheDocument();
-	expect(getByRole('twoDMode')).toBeInTheDocument();
+	components.map((component) =>
+		expect(getByRole(component)).toBeInTheDocument());
+
 	expect(getByRole('twoDMode')).toHaveClass('twoDMode');
 });

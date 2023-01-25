@@ -1,5 +1,5 @@
 import GameObject from './gameObject';
 
-const BackgroundObject = GameObject('objects');
+const BackgroundObject = GameObject();
 
 export default BackgroundObject;

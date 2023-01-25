@@ -6,7 +6,7 @@ import { collection, random } from '@laufire/utils';
 import { rndValue } from '@laufire/utils/random';
 import PositionService from '../positionService';
 
-describe.only('testing bulletManager', () => {
+describe('testing bulletManager', () => {
 	const two = 2;
 	const five = 5;
 	const ten = 10;
@@ -106,7 +106,7 @@ describe.only('testing bulletManager', () => {
 			});
 	});
 
-	describe.only('generateBullets renders bullets[{}]', () => {
+	describe('generateBullets renders bullets[{}]', () => {
 		const bullet = Symbol('bullet');
 		const bullets = range(0, rndBetween(five, ten)).map(Symbol);
 		const flight = {
@@ -199,9 +199,9 @@ describe.only('testing bulletManager', () => {
 		expect(result).toEqual(expected);
 	});
 
-	describe.only('generateDoubleBullets renders bullets[{}]', () => {
+	describe('generateDoubleBullets renders bullets[{}]', () => {
 		const bulletsCount = 2;
-		const bullet = Symbol;
+		const bullet = Symbol('bullet');
 		const bullets = range(0, rndBetween(five, ten)).map(Symbol);
 		const flight = {
 			x: rndBetween(five, ten),
@@ -218,7 +218,7 @@ describe.only('testing bulletManager', () => {
 			const data = 'player';
 			const context = { state, data, config };
 			const team = data;
-			const bulletXAxis = Symbol('x');
+			const bulletXAxis = Symbol('bulletXAxis');
 
 			const bulletProps = {
 				...context,
