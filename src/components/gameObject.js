@@ -2,7 +2,7 @@
 import React from 'react';
 import PositionService from '../services/positionService';
 
-const GameObject = (objectType) => (data) => {
+const GameObject = () => (data) => {
 	const { id, height, width, type, image } = data;
 	const { x, y } = PositionService.project(data);
 
@@ -17,7 +17,7 @@ const GameObject = (objectType) => (data) => {
 		<img
 			key={ id }
 			src={ image }
-			role={ objectType }
+			role="object"
 			style={ style }
 			className={ type }
 		/>) ;
