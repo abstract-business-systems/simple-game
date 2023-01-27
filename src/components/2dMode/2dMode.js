@@ -13,12 +13,12 @@ const TwoDMode = (context) => {
 
 	return (
 		<div role="twoDMode" className="twoDMode">
-			{ HealthBar() }
-			{ Container(state.objects, BackgroundObject) }
+			<HealthBar { ...context }/>
+			{Container(state.objects, BackgroundObject)}
 			{ Container(state.powers, Power) }
-			{ Score() }
+			<Score { ...context }/>
 			{ Container(state.bullets, Bullet) }
-			{ Flight() }
+			<Flight { ...context }/>
 			{ Container(state.targets, Target) }
 		</div>
 	);

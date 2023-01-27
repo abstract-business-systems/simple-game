@@ -63,10 +63,10 @@ const bulletManager = {
 
 	generateBullets: (context) => {
 		const { state: { bullets, flight: { x }}, data, config } = context;
-		const hasShootingProbability = HelperService
+		const canShoot = data || HelperService
 			.isProbable(config.shootingProbMultiplier);
 
-		return data || hasShootingProbability
+		return canShoot
 			? [...bullets,
 				bulletManager.makeBullet({
 					...context,

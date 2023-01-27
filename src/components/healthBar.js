@@ -1,18 +1,20 @@
 import React from 'react';
-import context from '../core/context';
 import GameService from '../services/gameService';
 
-const getStyle = () => ({
-	backgroundColor: GameService.healthColor(context.state.health),
-	width: `${ context.state.health }%`,
+const getStyle = ({ state: { health }}) => ({
+	backgroundColor: GameService.healthColor(health),
+	width: `${ health }%`,
 	height: '100%',
 });
 
-const HealthBar = () =>
-	<div role="healthBar" className="health-bar">
-		<div style={ getStyle() }>
-			{ GameService.ceilHealth(context.state.health) }
+const HealthBar = (context) => {
+	const { state: { health }} = context;
+
+	return <div role="healthBar" className="health-bar">
+		<div style={ getStyle(context) }>
+			{GameService.ceilHealth(health)}
 		</div>
 	</div>;
+};
 
 export default HealthBar;
