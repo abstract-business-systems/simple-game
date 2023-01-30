@@ -18,24 +18,17 @@ const bulletManager = {
 		}),
 	},
 
-	makeBullet: (context) => {
-		const { data, config: { rndLength }} = context;
-
-		return {
-			...data,
-			id: rndString(rndLength),
-			isHit: false,
-			...bulletManager.positions[data.team]({ ...context,
-				data: data.bulletXAxis }),
-		};
-	},
-
 	getType: ({ config: { bulletsType, defaultBulletType }}) => {
 		const bulletTypeKeys = keys(bulletsType);
 		const type = bulletTypeKeys.find((key) =>
 			HelperService.isProbable(bulletsType[key].prob));
 
 		return bulletsType[type] || bulletsType[defaultBulletType];
+	},
+
+	makeBullets: (context)=>{
+		enemy: (context) => {},
+		player: (context) => {},
 	},
 
 	isFuture: (dateValue) => dateValue > Date.now(),

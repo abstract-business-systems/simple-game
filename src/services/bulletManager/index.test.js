@@ -279,4 +279,19 @@ describe('testing bulletManager', () => {
 			expect(bulletManager.isFuture(value)).toEqual(expectation);
 		});
 	});
+
+	test('generateBullets', () => {
+		const bullets = [Symbol('bullets')];
+		const data = { team: rndValue(['player', 'enemy']) };
+		const context = { data };
+
+		jest.spyOn(bulletManager, 'makeBullets').mockReturnValue(bullets);
+
+		const result = bulletManager.generateBullets(context);
+		const expected = bullets;
+
+		expect(bulletManager.makeBullets[data.team])
+			.toHaveBeenCalledWith(context);
+		expect(result).toEqual(expected);
+	});
 });
