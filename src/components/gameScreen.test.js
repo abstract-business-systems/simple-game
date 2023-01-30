@@ -8,6 +8,7 @@ import { render, fireEvent } from '@testing-library/react';
 import * as getMode from '../services/urlService';
 import GameScreen from './gameScreen';
 import bulletManager from '../services/bulletManager';
+import Ticker from '../services/ticker';
 
 describe('testing GameScreen', () => {
 	const context = {
@@ -30,9 +31,13 @@ describe('testing GameScreen', () => {
 
 	test('gameScreen visible', () => {
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
-		const component = render(GameScreen(context)).getByRole('gameScreen');
+		jest.spyOn(React, 'useEffect');
+		jest.spyOn(Ticker, 'start').mockReturnValue();
+		const component = render(<GameScreen { ...context }/>)
+			.getByRole('gameScreen');
 
 		expect(component).toBeInTheDocument();
+		expect(React.useEffect).toHaveBeenCalledWith(Ticker.start, []);
 		expect(component).toHaveClass('game-screen');
 		expect(component).toHaveStyle({
 			backgroundPositionY: `${ context.state.bgnScreenY }%`,

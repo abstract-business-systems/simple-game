@@ -7,17 +7,18 @@ import Keyboard from './keyboard';
 
 const Game = (context) => {
 	const { state } = context;
-	const readyScreens = {
+	const ReadyScreens = {
 		true: PlayerManager.isAlive(context)
 			? GameScreen
 			: GameOverScreen,
 		false: WelcomeScreen,
 	};
+	const ReadyScreen = ReadyScreens[state.ready];
 
 	return (
 		<div className="game" role="game">
-			{ readyScreens[state.ready](context) }
-			{ Keyboard(context) }
+			<ReadyScreen { ...context }/>
+			{Keyboard(context) }
 		</div>
 	);
 };
