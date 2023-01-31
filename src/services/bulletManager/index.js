@@ -58,8 +58,8 @@ const bulletManager = {
 
 	isFuture: (dateValue) => dateValue > Date.now(),
 
-	isActive: (context, power) => {
-		const { state } = context;
+	isActive: (context) => {
+		const { state, data: power } = context;
 
 		return bulletManager.isFuture(state.durations[power]);
 	},

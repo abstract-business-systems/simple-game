@@ -294,9 +294,37 @@ describe('testing bulletManager', () => {
 						...{ ...data, target }}));
 		});
 
-		test('makePlayerBullet', () => {
+		const bulletPosition = Symbol('bulletPosition');
+		const state = {
+			flight: {
+				x: Symbol('x'),
+			},
+		};
+		const data = { team: 'player' };
+		const expectations = [[true, bulletPosition, 2],
+			[false, state.flight.x, 1]];
 
-		});
+		test.each(expectations)('makePlayerBullet',
+			(
+				boolean, position, bulletCount
+			) => {
+				const bullet = Symbol('bullet');
+				const context = { data, state };
+
+				jest.spyOn(bulletManager, 'isActive').mockReturnValue(boolean);
+				boolean && jest.spyOn(PositionService, 'getBulletPosition')
+					.mockReturnValue(position);
+				jest.spyOn(bulletManager, 'makeBullet')
+					.mockReturnValue(bullet);
+
+				const expected = map(range(0, bulletCount), () => bullet);
+
+				const result = bulletManager.makeBullets[data.team](context);
+
+				expect(result).toEqual(expected);
+				map(range(0, bulletCount), () =>
+					expect(bulletManager.makeBullet).toHaveBeenCalledWith(context));
+			});
 	});
 
 	test('makeBullet', () => {
