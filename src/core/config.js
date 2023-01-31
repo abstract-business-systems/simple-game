@@ -45,7 +45,7 @@ const config = {
 		{ key: 'H', action: 'help', desc: 'Help' },
 		{ key: 'P', action: 'playPause', desc: 'Play/Pause' },
 	],
-	shootingProb: 0.1,
+	shootingProb: 0.05,
 	bulletCount: {
 		defaultCount: 1,
 		double: 2,

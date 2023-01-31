@@ -1,6 +1,7 @@
 /* eslint-disable no-magic-numbers */
 import { keys, map, range } from '@laufire/utils/collection';
 import { peek } from '@laufire/utils/debug';
+import { rndBetween } from '@laufire/utils/lib';
 import { rndString, rndValues } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 import PositionService from '../positionService';
@@ -45,17 +46,17 @@ const bulletManager = {
 		enemy: (context) => {
 			const {
 				state: { targets },
-				config: { shootingProb },
-				data: { team },
+				config: { shootingProb, maxTargets },
+				data,
 			} = context;
-			const randomTargets = rndValues(targets, 2);
+			const randomTargets = rndValues(targets, rndBetween(0, maxTargets));
 			const canShoot = HelperService.isProbable(shootingProb);
 
 			return canShoot
 				? map(randomTargets, (target) =>
 					bulletManager.makeBullet({
 						...context,
-						data: { team, target },
+						data: { ...data, target },
 					}))
 				: [];
 		},
@@ -63,7 +64,7 @@ const bulletManager = {
 		player: (context) => {
 			const {
 				config: { bulletCount: { defaultCount, double }},
-				state: { flight: { x }},
+				state: { flight: { x }}, data,
 			} = context;
 			const isPowerActive = bulletManager.isActive({
 				...context,
@@ -77,8 +78,8 @@ const bulletManager = {
 					: x;
 
 				return bulletManager.makeBullet({
-					...context,
-					...{ ...context.data, x: xPosition },
+					...context, data: { ...data, x: xPosition }
+					,
 				});
 			});
 		},
@@ -95,7 +96,7 @@ const bulletManager = {
 	generateBullets: (context) => {
 		const { data: { team }, state: { bullets }} = context;
 
-		return [...bullets, bulletManager.makeBullets[team](context)];
+		return [...bullets, ...bulletManager.makeBullets[team](context)];
 	},
 };
 
