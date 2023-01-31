@@ -8,7 +8,7 @@ import PositionService from '../positionService';
 const bulletManager = {
 
 	positions: {
-		enemy: ({ data: { x }, config }) => ({
+		enemy: ({ data: { target: { x }}, config }) => ({
 			x: x,
 			y: config.targets.shooter.y,
 		}),
@@ -30,10 +30,12 @@ const bulletManager = {
 	makeBullet: (context) => {
 		const { data: { team }, config: { rndLength }} = context;
 
+		peek(context.data);
+
 		return {
 			id: rndString(rndLength),
 			isHit: false,
-			...team,
+			team: team,
 			...bulletManager.positions[team](context),
 			...bulletManager.getType(context),
 		};
@@ -41,15 +43,19 @@ const bulletManager = {
 
 	makeBullets: {
 		enemy: (context) => {
-			const { state: { targets }, config: { shootingProb }} = context;
-			const randomTargets = peek(rndValues(targets));
+			const {
+				state: { targets },
+				config: { shootingProb },
+				data: { team },
+			} = context;
+			const randomTargets = rndValues(targets, 2);
 			const canShoot = HelperService.isProbable(shootingProb);
 
 			return canShoot
 				? map(randomTargets, (target) =>
 					bulletManager.makeBullet({
 						...context,
-						...{ ...context.data, target },
+						data: { team, target },
 					}))
 				: [];
 		},
