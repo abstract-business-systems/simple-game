@@ -1,4 +1,5 @@
-import { range } from '@laufire/utils/collection';
+/* eslint-disable no-magic-numbers */
+import { map, range } from '@laufire/utils/collection';
 import { rndBetween } from '@laufire/utils/lib';
 import bulletManager from '.';
 import * as HelperService from '../helperService';
@@ -285,7 +286,8 @@ describe('testing bulletManager', () => {
 		const data = { team: rndValue(['player', 'enemy']) };
 		const context = { data };
 
-		jest.spyOn(bulletManager, 'makeBullets').mockReturnValue(bullets);
+		jest.spyOn(bulletManager.makeBullets, data.team)
+			.mockReturnValue(bullets);
 
 		const result = bulletManager.generateBullets(context);
 		const expected = bullets;
@@ -293,5 +295,46 @@ describe('testing bulletManager', () => {
 		expect(bulletManager.makeBullets[data.team])
 			.toHaveBeenCalledWith(context);
 		expect(result).toEqual(expected);
+	});
+
+	describe('makeBullets', () => {
+		const config = {
+			rndLength: Symbol('rndLength'),
+			targets: five,
+		};
+		const id = Symbol('id');
+		const bullets = [Symbol('bullets')];
+
+		test('makeEnemyBullet', () => {
+			const data = { team: 'enemy' };
+			const getTypeValue = Symbol('getTypeValue');
+			const positionValue = Symbol('positionValue');
+			const context = { config, data };
+
+			jest.spyOn(bulletManager.positions, data.team)
+				.mockReturnValue(positionValue);
+			jest.spyOn(random, 'rndString').mockReturnValue(id);
+			jest.spyOn(bulletManager, 'getType').mockReturnValue(getTypeValue);
+
+			const result = bulletManager.makeBullets[data.team];
+			const expected = [...bullets,
+				...map(range(rndBetween(0, config.targets)), () => ({
+					...getTypeValue,
+					...positionValue,
+					id: id,
+					isHit: false,
+				}))];
+
+			expect(result).toEqual(expected);
+			expect(bulletManager.positions[data.team])
+				.toHaveBeenCalledWith(context);
+			expect(random.rndString)
+				.toHaveBeenCalledWith(context.config.rndLength);
+			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+		});
+
+		test('makePlayerBullet', () => {
+
+		});
 	});
 });

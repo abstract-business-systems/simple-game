@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import bulletManager from '../services/bulletManager';
 import Ticker from '../services/ticker';
 import getMode from '../services/urlService';
 import TwoDMode from './2dMode/2dMode';
@@ -26,9 +25,8 @@ const GameScreen = (context) => {
 				context.actions.updateMousePosition(event);
 				context.actions.updateFlightPosition();
 			} }
-			onClick={ () => (bulletManager.isActive(context, 'doubleBullet')
-				? context.actions.generateDoubleBullets('player')
-				: context.actions.generateBullets('player')) }
+			onClick={ () => context.actions
+				.generatePlayerBullets({ data: { team: 'player' }}) }
 		>
 			{GameMode[getMode(context)](context)}
 		</div>);

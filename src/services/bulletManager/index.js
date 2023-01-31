@@ -26,8 +26,9 @@ const bulletManager = {
 		return bulletsType[type] || bulletsType[defaultBulletType];
 	},
 
-	makeBullets: (context)=>{
+	makeBullets: {
 		enemy: (context) => {},
+
 		player: (context) => {},
 	},
 
@@ -55,21 +56,9 @@ const bulletManager = {
 	},
 
 	generateBullets: (context) => {
-		const { state: { bullets, flight: { x }}, data, config } = context;
-		const canShoot = data || HelperService
-			.isProbable(config.shootingProbMultiplier);
+		const { data: { team }} = context;
 
-		return canShoot
-			? [...bullets,
-				bulletManager.makeBullet({
-					...context,
-					data: {
-						...bulletManager.getType(context),
-						team: data || 'enemy',
-						bulletXAxis: x,
-					},
-				})]
-			: bullets;
+		return bulletManager.makeBullets[team](context);
 	},
 };
 

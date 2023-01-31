@@ -42,7 +42,7 @@ const resetObjects = (context) => ({
 	objects: PlayerManager.resetBackgroundObjects(context),
 });
 
-const generateBullets = (context) => ({
+const generatePlayerBullets = (context) => ({
 	bullets: bulletManager.generateBullets(context),
 });
 
@@ -51,7 +51,8 @@ const generateDoubleBullets = (context) => ({
 });
 
 const generateEnemyBullets = (context) => ({
-	bullets: bulletManager.generateBullets(context),
+	bullets: bulletManager
+		.generateBullets({ ...context, data: { team: 'enemy' }}),
 });
 
 const moveBullets = (context) => ({
@@ -108,7 +109,7 @@ const actions = {
 	addTargets,
 	updateObjects,
 	resetObjects,
-	generateBullets,
+	generatePlayerBullets,
 	moveBullets,
 	updateFlightPosition,
 	processBullets,
