@@ -298,39 +298,33 @@ describe('testing bulletManager', () => {
 	});
 
 	describe('makeBullets', () => {
-		const config = {
-			rndLength: Symbol('rndLength'),
-			targets: five,
-		};
-		const id = Symbol('id');
-		const bullets = [Symbol('bullets')];
-
 		test('makeEnemyBullet', () => {
+			const config = {
+				rndLength: Symbol('rndLength'),
+				targets: five,
+				shootingProb: Symbol('shootingProb'),
+			};
+			const state = {
+				targets: [Symbol('targets')],
+			};
+			const bullet = Symbol('bullet');
 			const data = { team: 'enemy' };
-			const getTypeValue = Symbol('getTypeValue');
-			const positionValue = Symbol('positionValue');
-			const context = { config, data };
+			const randomTargets = [Symbol('targets')];
+			const context = { config, data, state };
+			const canShoot = true;
 
-			jest.spyOn(bulletManager.positions, data.team)
-				.mockReturnValue(positionValue);
-			jest.spyOn(random, 'rndString').mockReturnValue(id);
-			jest.spyOn(bulletManager, 'getType').mockReturnValue(getTypeValue);
+			jest.spyOn(HelperService, 'isProbable').mockReturnValue(canShoot);
+			jest.spyOn(random, 'rndValues').mockReturnValue(randomTargets);
+			jest.spyOn(bulletManager, 'makeBullet')
+				.mockReturnValue(bullet);
+			const expected = map(randomTargets, () => bullet);
 
-			const result = bulletManager.makeBullets[data.team];
-			const expected = [...bullets,
-				...map(range(rndBetween(0, config.targets)), () => ({
-					...getTypeValue,
-					...positionValue,
-					id: id,
-					isHit: false,
-				}))];
+			const result = bulletManager.makeBullets[data.team](context);
 
 			expect(result).toEqual(expected);
-			expect(bulletManager.positions[data.team])
-				.toHaveBeenCalledWith(context);
-			expect(random.rndString)
-				.toHaveBeenCalledWith(context.config.rndLength);
-			expect(bulletManager.getType).toHaveBeenCalledWith(context);
+			expect(HelperService.isProbable)
+				.toHaveBeenCalledWith(config.shootingProb);
+			expect(random.rndValues).toHaveBeenCalledWith(state.targets);
 		});
 
 		test('makePlayerBullet', () => {
