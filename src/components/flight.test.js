@@ -1,3 +1,4 @@
+import React from 'react';
 import Flight from './flight';
 import { render } from '@testing-library/react';
 import context from '../core/context';
@@ -14,7 +15,7 @@ describe('testing Flight', () => {
 
 		jest.spyOn(PositionService, 'project').mockReturnValue(returnValue);
 
-		const component = render(Flight()).getByRole('flight');
+		const component = render(<Flight { ...context }/>).getByRole('flight');
 
 		expect(component).toBeInTheDocument();
 		expect(component).toHaveClass('flight');

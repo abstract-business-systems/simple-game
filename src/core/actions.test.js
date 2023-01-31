@@ -11,7 +11,7 @@ describe('actions', () => {
 		addTargets,
 		updateObjects,
 		resetObjects,
-		generateBullets,
+		generatePlayerBullets,
 		moveBullets,
 		updateFlightPosition,
 		processBullets,
@@ -26,8 +26,7 @@ describe('actions', () => {
 		generateEnemyBullets,
 		generatePowers,
 		updatePowers,
-		processPowers,
-		generateDoubleBullets } = actions;
+		processPowers } = actions;
 
 	const returnValue = Symbol('return');
 
@@ -106,23 +105,9 @@ describe('actions', () => {
 
 		const expected = { bullets: returnValue };
 
-		const result = generateBullets(context);
+		const result = generatePlayerBullets(context);
 
 		expect(bulletManager.generateBullets)
-			.toHaveBeenCalledWith(context);
-
-		expect(result).toEqual(expected);
-	});
-
-	test('generateDoubleBullets returns bullets[]', () => {
-		jest.spyOn(bulletManager, 'generateDoubleBullets')
-			.mockReturnValue(returnValue);
-
-		const expected = { bullets: returnValue };
-
-		const result = generateDoubleBullets(context);
-
-		expect(bulletManager.generateDoubleBullets)
 			.toHaveBeenCalledWith(context);
 
 		expect(result).toEqual(expected);
@@ -137,7 +122,7 @@ describe('actions', () => {
 		const result = generateEnemyBullets(context);
 
 		expect(bulletManager.generateBullets)
-			.toHaveBeenCalledWith(context);
+			.toHaveBeenCalledWith({ ...context, data: { team: 'enemy' }});
 
 		expect(result).toEqual(expected);
 	});

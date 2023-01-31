@@ -1,3 +1,4 @@
+import React from 'react';
 import HealthBar from './healthBar';
 import { render } from '@testing-library/react';
 import context from '../core/context';
@@ -11,7 +12,8 @@ describe('testing HealthBar', () => {
 	test('healthBar is visible?', () => {
 		jest.spyOn(GameService, 'ceilHealth');
 		jest.spyOn(GameService, 'healthColor');
-		const component = render(HealthBar()).getByRole('healthBar');
+		const component = render(<HealthBar { ...context }/>)
+			.getByRole('healthBar');
 
 		expect(component).toBeInTheDocument();
 		expect(component).toHaveClass('health-bar');

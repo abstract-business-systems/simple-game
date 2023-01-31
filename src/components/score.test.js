@@ -1,4 +1,5 @@
 /* eslint-disable max-statements */
+import React from 'react';
 import { render } from '@testing-library/react';
 import Score from './score';
 import blast from '../images/score-icon.png';
@@ -10,7 +11,7 @@ jest.mock('../core/context', () => ({
 
 describe('score card', () => {
 	test('to Check score card', () => {
-		const { getByRole } = render(Score());
+		const { getByRole } = render(<Score { ...context }/>);
 		const component = getByRole('score-card');
 
 		expect(component).toBeInTheDocument();
