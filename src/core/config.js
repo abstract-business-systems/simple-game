@@ -9,7 +9,6 @@ const config = {
 	tickerDelay: 100,
 	health: 100,
 	damage: 0.1,
-	bulletsCount: 2,
 	quad: 4,
 	rndLength: 16,
 	threeDProjectY: 3,
@@ -47,6 +46,10 @@ const config = {
 		{ key: 'P', action: 'playPause', desc: 'Play/Pause' },
 	],
 	shootingProb: 0.1,
+	bulletCount: {
+		defaultCount: 1,
+		double: 2,
+	},
 	bulletsType: {
 		normal: {
 			type: 'normal',

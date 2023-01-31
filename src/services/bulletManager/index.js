@@ -1,5 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import { keys, map, range } from '@laufire/utils/collection';
+import { peek } from '@laufire/utils/debug';
 import { rndString, rndValues } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 import PositionService from '../positionService';
@@ -7,13 +8,13 @@ import PositionService from '../positionService';
 const bulletManager = {
 
 	positions: {
-		enemy: ({ data: target, config }) => ({
-			x: target.x,
+		enemy: ({ data: { x }, config }) => ({
+			x: x,
 			y: config.targets.shooter.y,
 		}),
 
-		player: ({ config, data }) => ({
-			x: data,
+		player: ({ config, data: { x }}) => ({
+			x: x,
 			y: config.bulletYAxis,
 		}),
 	},
@@ -41,7 +42,7 @@ const bulletManager = {
 	makeBullets: {
 		enemy: (context) => {
 			const { state: { targets }, config: { shootingProb }} = context;
-			const randomTargets = rndValues(targets);
+			const randomTargets = peek(rndValues(targets));
 			const canShoot = HelperService.isProbable(shootingProb);
 
 			return canShoot
@@ -53,7 +54,28 @@ const bulletManager = {
 				: [];
 		},
 
-		player: () => {},
+		player: (context) => {
+			const {
+				config: { bulletCount: { defaultCount, double }},
+				state: { flight: { x }},
+			} = context;
+			const isPowerActive = bulletManager.isActive({
+				...context,
+				data: 'doubleBullet',
+			});
+			const bulletCount = isPowerActive ? double : defaultCount;
+
+			return map(range(0, bulletCount), () => {
+				const xPosition = isPowerActive
+					? PositionService.getBulletPosition(context)
+					: x;
+
+				return bulletManager.makeBullet({
+					...context,
+					...{ ...context.data, x: xPosition },
+				});
+			});
+		},
 	},
 
 	isFuture: (dateValue) => dateValue > Date.now(),
@@ -62,21 +84,6 @@ const bulletManager = {
 		const { state, data: power } = context;
 
 		return bulletManager.isFuture(state.durations[power]);
-	},
-
-	generateDoubleBullets: (context) => {
-		const { state: { bullets },
-			config: { bulletsCount }, data } = context;
-
-		return [...bullets,
-			...map(range(0, bulletsCount), () => bulletManager.makeBullet({
-				...context,
-				data: {
-					...bulletManager.getType(context),
-					team: data,
-					bulletXAxis: PositionService.getBulletPosition(context),
-				},
-			}))];
 	},
 
 	generateBullets: (context) => {

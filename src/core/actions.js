@@ -46,10 +46,6 @@ const generatePlayerBullets = (context) => ({
 	bullets: bulletManager.generateBullets(context),
 });
 
-const generateDoubleBullets = (context) => ({
-	bullets: bulletManager.generateDoubleBullets(context),
-});
-
 const generateEnemyBullets = (context) => ({
 	bullets: bulletManager
 		.generateBullets({ ...context, data: { team: 'enemy' }}),
@@ -125,7 +121,6 @@ const actions = {
 	generatePowers,
 	updatePowers,
 	processPowers,
-	generateDoubleBullets,
 };
 
 export default actions;
