@@ -7,7 +7,6 @@ import { rndString, rndValue } from '@laufire/utils/random';
 import { render, fireEvent } from '@testing-library/react';
 import * as getMode from '../services/urlService';
 import GameScreen from './gameScreen';
-import bulletManager from '../services/bulletManager';
 import Ticker from '../services/ticker';
 
 describe('testing GameScreen', () => {
@@ -21,8 +20,7 @@ describe('testing GameScreen', () => {
 		actions: {
 			updateMousePosition: jest.fn(),
 			updateFlightPosition: jest.fn(),
-			generateDoubleBullets: jest.fn(),
-			generateBullets: jest.fn(),
+			generatePlayerBullets: jest.fn(),
 		},
 	};
 	const { actions } = context;
@@ -31,7 +29,6 @@ describe('testing GameScreen', () => {
 
 	test('gameScreen visible', () => {
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
-		jest.spyOn(React, 'useEffect');
 		jest.spyOn(Ticker, 'start').mockReturnValue();
 		const component = render(<GameScreen { ...context }/>)
 			.getByRole('gameScreen');
@@ -44,20 +41,14 @@ describe('testing GameScreen', () => {
 		});
 	});
 
-	const expectations = [
-		[true, 'generateDoubleBullets'],
-		[false, 'generateBullets'],
-	];
-
-	test.each(expectations)('event check', (boolean, expected) => {
+	test('event check', () => {
 		jest.spyOn(actions, 'updateMousePosition');
 		jest.spyOn(actions, 'updateFlightPosition');
-		jest.spyOn(actions, 'generateDoubleBullets');
-		jest.spyOn(actions, 'generateBullets');
-		jest.spyOn(bulletManager, 'isActive').mockReturnValue(boolean);
+		jest.spyOn(actions, 'generatePlayerBullets');
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 
-		const component = render(GameScreen(context)).getByRole('gameScreen');
+		const component = render(<GameScreen { ...context }/>)
+			.getByRole('gameScreen');
 
 		const mouseEvent = { _reactName: 'onMouseMove', type: 'mousemove' };
 		const clickEvent = {
@@ -71,15 +62,14 @@ describe('testing GameScreen', () => {
 		expect(actions.updateMousePosition).toHaveBeenCalledWith(expect
 			.objectContaining(mouseEvent));
 		expect(actions.updateFlightPosition).toHaveBeenCalledWith();
-		expect(bulletManager.isActive)
-			.toHaveBeenCalledWith(context, 'doubleBullet');
-		expect(actions[expected]).toHaveBeenCalledWith('player');
+		expect(actions.generatePlayerBullets)
+			.toHaveBeenCalledWith({ team: 'player' });
 	});
 
 	test('gameMode', () => {
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 
-		const { getByRole } = render(GameScreen(context));
+		const { getByRole } = render(<GameScreen { ...context }/>);
 
 		expect(getByRole('gameScreen')).toBeInTheDocument();
 		expect(getByRole(rndMode)).toBeInTheDocument();
