@@ -1,8 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import { keys, map, range } from '@laufire/utils/collection';
-import { peek } from '@laufire/utils/debug';
-import { rndBetween } from '@laufire/utils/lib';
-import { rndString, rndValues } from '@laufire/utils/random';
+import { rndString, rndValues, rndBetween } from '@laufire/utils/random';
 import * as HelperService from '../helperService';
 import PositionService from '../positionService';
 
@@ -30,8 +28,6 @@ const bulletManager = {
 
 	makeBullet: (context) => {
 		const { data: { team }, config: { rndLength }} = context;
-
-		peek(context.data);
 
 		return {
 			id: rndString(rndLength),
