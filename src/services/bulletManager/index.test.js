@@ -146,7 +146,9 @@ describe('testing bulletManager', () => {
 	});
 
 	describe('makeBullets', () => {
-		test('makeEnemyBullets', () => {
+		const possibilities = [[true], [false]];
+
+		test.each(possibilities)('makeEnemyBullets', (boolean) => {
 			const config = {
 				rndLength: Symbol('rndLength'),
 				targets: five,
@@ -159,16 +161,16 @@ describe('testing bulletManager', () => {
 			const data = { team: 'enemy' };
 			const randomTargets = [Symbol('targets')];
 			const context = { config, data, state };
-			const canShoot = true;
+			const canShoot = boolean;
 			const rndBetweenValue = Symbol('rndBetweenValue');
 
 			jest.spyOn(HelperService, 'isProbable').mockReturnValue(canShoot);
 			jest.spyOn(random, 'rndValues').mockReturnValue(randomTargets);
-			jest.spyOn(bulletManager, 'makeBullet')
+			boolean && jest.spyOn(bulletManager, 'makeBullet')
 				.mockReturnValue(bullet);
 			jest.spyOn(random, 'rndBetween').mockReturnValue(rndBetweenValue);
 
-			const expected = map(randomTargets, () => bullet);
+			const expected = boolean ? map(randomTargets, () => bullet) : [];
 
 			const result = bulletManager.makeBullets[data.team](context);
 
@@ -177,7 +179,7 @@ describe('testing bulletManager', () => {
 				.toHaveBeenCalledWith(config.shootingProb);
 			expect(random.rndValues)
 				.toHaveBeenCalledWith(state.targets, rndBetweenValue);
-			map(randomTargets, (target) =>
+			boolean && map(randomTargets, (target) =>
 				expect(bulletManager.makeBullet)
 					.toHaveBeenCalledWith({ ...context,
 						data: { ...data, target }}));

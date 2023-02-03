@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { React, useEffect } from 'react';
 import Ticker from '../services/ticker';
 import getMode from '../services/urlService';
 import TwoDMode from './2dMode/2dMode';

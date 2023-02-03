@@ -30,6 +30,7 @@ describe('testing GameScreen', () => {
 	test('gameScreen visible', () => {
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 		jest.spyOn(Ticker, 'start').mockReturnValue();
+		jest.spyOn(React, 'useEffect');
 		const component = render(<GameScreen { ...context }/>)
 			.getByRole('gameScreen');
 
@@ -42,6 +43,8 @@ describe('testing GameScreen', () => {
 	});
 
 	test('event check', () => {
+		jest.spyOn(Ticker, 'start').mockReturnValue();
+		jest.spyOn(React, 'useEffect');
 		jest.spyOn(actions, 'updateMousePosition');
 		jest.spyOn(actions, 'updateFlightPosition');
 		jest.spyOn(actions, 'generatePlayerBullets');
