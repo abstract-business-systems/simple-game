@@ -43,6 +43,7 @@
 	}
 }
 
+
 .flight {
 	position: absolute;
 	background-image: url('./images/fighterJet.png');
@@ -51,6 +52,7 @@
 	width: 6vw;
 	height: 10%;
 	bottom: 0%;
+	transform: translate(-50%,0%),
 }
 
 .health-bar {
@@ -118,16 +120,16 @@
 	position: absolute;
 	background-size: 100%;
 	background-repeat: no-repeat;
+	transform: translate(-50%,-50%),
+
 }
-.cloud ,.doubleBullet{
+.cloud ,.doubleBullet,.ship{
 	position: absolute;
 	background-size: 100%;
+	transform: translate(50%,-50%),
+
 }
 
-.ship{
-	position: absolute;
-	background-size: 100%;
-}
 
 .help {
 	position: absolute;

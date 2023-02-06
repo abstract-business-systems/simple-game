@@ -70,6 +70,8 @@ describe('testing GameScreen', () => {
 	});
 
 	test('gameMode', () => {
+		jest.spyOn(Ticker, 'start').mockReturnValue();
+		jest.spyOn(React, 'useEffect');
 		jest.spyOn(getMode, 'default').mockReturnValue(rndMode);
 
 		const { getByRole } = render(<GameScreen { ...context }/>);
