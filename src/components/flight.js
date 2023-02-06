@@ -1,17 +1,14 @@
 import React from 'react';
-import PositionService from '../services/positionService';
 
-const style = ({ state: { flight }}) => {
-	const { x } = PositionService.project(flight);
+const Flight = (context) => {
+	const { state: { flight: { x }}} = context;
 
-	return { left: `${ x }%` };
+	return (
+		<div
+			role="flight"
+			className="flight"
+			style={ { left: `${ x }%` } }
+		/>);
 };
-
-const Flight = (context) =>
-	<div
-		role="flight"
-		className="flight"
-		style={ style(context) }
-	/>;
 
 export default Flight;

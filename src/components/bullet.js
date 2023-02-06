@@ -1,9 +1,7 @@
 import React from 'react';
-import PositionService from '../services/positionService';
 
 const style = (bullet) => {
-	const { width, height, color } = bullet;
-	const { x, y } = PositionService.project(bullet);
+	const { width, height, color, x, y } = bullet;
 
 	return {
 		height: `${ height }vw`,

@@ -1,27 +1,23 @@
 import React from 'react';
 import Flight from './flight';
 import { render } from '@testing-library/react';
-import context from '../core/context';
-import PositionService from '../services/positionService';
-import { rndBetween } from '@laufire/utils/lib';
-
-jest.mock('../core/context', () => ({
-	state: { flight: { x: 100 }},
-}));
+import { rndString } from '@laufire/utils/random';
 
 describe('testing Flight', () => {
+	const state = {
+		flight: {
+			x: rndString(),
+		},
+	};
+	const context = { state };
+
 	test('flight is visible', () => {
-		const returnValue = { x: rndBetween() };
-
-		jest.spyOn(PositionService, 'project').mockReturnValue(returnValue);
-
 		const component = render(<Flight { ...context }/>).getByRole('flight');
 
 		expect(component).toBeInTheDocument();
 		expect(component).toHaveClass('flight');
-		expect(PositionService.project).toBeCalledWith(context.state.flight);
 		expect(component).toHaveStyle({
-			left: `${ returnValue.x }%`,
+			left: `${ state.flight.x }%`,
 		});
 	});
 });
