@@ -1,9 +1,7 @@
 import { React } from 'react';
-import PositionService from '../services/positionService';
 
 const Target = (target) => {
-	const { id, height, width, image, color } = target;
-	const { x, y } = PositionService.project(target);
+	const { id, height, width, image, color, x, y } = target;
 	const style = {
 		left: `${ x }%`,
 		top: `${ y }%`,

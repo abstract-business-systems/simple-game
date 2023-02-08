@@ -4,10 +4,7 @@ const hundred = 100;
 const two = 2;
 
 const PositionService = {
-	project: ({ x, y, width, height }) => ({
-		x: x - (width / two),
-		y: y - (height / two),
-	}),
+
 	getBulletPosition: ({ state: { flight: { x, width }},
 		config: { quad }}) => {
 		const flightQuarter = width / quad;

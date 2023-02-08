@@ -4,7 +4,6 @@ import config from '../core/config';
 
 describe('PositionService', () => {
 	const {
-		project,
 		limitMovement,
 		pxToPercentage,
 		getRandomValue,
@@ -24,22 +23,6 @@ describe('PositionService', () => {
 	const y = random.rndBetween(twentyFive, hundred);
 	const width = random.rndBetween(twentyFive, hundred);
 	const height = random.rndBetween(twentyFive, hundred);
-
-	test('project', () => {
-		const data = {
-			x,
-			y,
-			width,
-			height,
-		};
-		const result = project(data);
-		const expected = {
-			x: result.x + (width / two),
-			y: result.y + (height / two),
-		};
-
-		expect(data).toMatchObject(expected);
-	});
 
 	describe('getBulletPosition', () => {
 		test('getBulletPosition', () => {
