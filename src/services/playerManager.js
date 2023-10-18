@@ -1,7 +1,7 @@
 import PositionService from './positionService';
 import { find, values } from '@laufire/utils/collection';
 import * as helper from './helperService';
-import { rndString } from '@laufire/utils/random';
+import { rndBetween, rndString } from '@laufire/utils/random';
 import * as helperService from '../services/helperService';
 import { adjustTime } from './ticker/timeService';
 
@@ -51,12 +51,25 @@ const PlayerManager = {
 		id: rndString(context.config.rndLength),
 		...context.data,
 	}),
+	configureObjects: (item) => {
+		const { type, height, width } = item;
+		const min = 5;
+		const multiplier = 2;
+		const rndHeight = type === 'cloud' ? rndBetween(min, height) : height;
+		const rndWidth = type === 'cloud' ? rndHeight * multiplier : width;
+
+		return {
+			...item,
+			height: rndHeight,
+			width: rndWidth,
+		};
+	},
 
 	createObjects: (context) => context.data
 		.filter(({ prob }) => helperService.isProbable(prob))
 		.map((item) => PlayerManager.getObjects({
 			...context,
-			data: item,
+			data: PlayerManager.configureObjects(item),
 		})),
 
 	generateObjects: (context) => {

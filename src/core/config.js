@@ -97,8 +97,8 @@ const config = {
 	maxTargets: 5,
 	objects: {
 		cloud: {
-			width: 20,
-			height: 10,
+			width: 30,
+			height: 15,
 			type: 'cloud',
 			prob: 0.02,
 			image: cloudImage,
